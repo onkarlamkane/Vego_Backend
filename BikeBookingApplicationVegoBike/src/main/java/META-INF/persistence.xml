@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.2" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
+	<persistence-unit name="OkBike">
+		<class>com.eptiq.vegobike.model.AdditionalCharge</class>
+		<class>com.eptiq.vegobike.model.BikeImage</class>
+		<class>com.eptiq.vegobike.model.BikeSaleEnquiry</class>
+		<class>com.eptiq.vegobike.model.BikeSaleImage</class>
+		<class>com.eptiq.vegobike.model.BikeSale</class>
+		<class>com.eptiq.vegobike.model.BikeSellImage</class>
+		<class>com.eptiq.vegobike.model.BikeSellerDetail</class>
+		<class>com.eptiq.vegobike.model.BikeServiceEnquiry</class>
+		<class>com.eptiq.vegobike.model.BikeService</class>
+		<class>com.eptiq.vegobike.model.Bike</class>
+		<class>com.eptiq.vegobike.model.BookingBike</class>
+		<class>com.eptiq.vegobike.model.BookingNotification</class>
+		<class>com.eptiq.vegobike.model.BookingRequest</class>
+		<class>com.eptiq.vegobike.model.BookingStatus</class>
+		<class>com.eptiq.vegobike.model.BrandCategory</class>
+		<class>com.eptiq.vegobike.model.Brand</class>
+		<class>com.eptiq.vegobike.model.Category</class>
+		<class>com.eptiq.vegobike.model.ChatMessage</class>
+		<class>com.eptiq.vegobike.model.Chat</class>
+		<class>com.eptiq.vegobike.model.Enquiry</class>
+		<class>com.eptiq.vegobike.model.FailedJob</class>
+		<class>com.eptiq.vegobike.model.Invoice</class>
+		<class>com.eptiq.vegobike.model.LocationMaster</class>
+		<class>com.eptiq.vegobike.model.LocationPriceList</class>
+		<class>com.eptiq.vegobike.model.Migration</class>
+		<class>com.eptiq.vegobike.model.Model</class>
+		<class>com.eptiq.vegobike.model.Notification</class>
+		<class>com.eptiq.vegobike.model.Offer</class>
+		<class>com.eptiq.vegobike.model.PasswordReset</class>
+		<class>com.eptiq.vegobike.model.PersonalAccessToken</class>
+		<class>com.eptiq.vegobike.model.PriceList</class>
+		<class>com.eptiq.vegobike.model.ServiceOrderItem</class>
+		<class>com.eptiq.vegobike.model.ServiceOrder</class>
+		<class>com.eptiq.vegobike.model.ServiceStatus</class>
+		<class>com.eptiq.vegobike.model.SpareCart</class>
+		<class>com.eptiq.vegobike.model.SparePartEnquiry</class>
+		<class>com.eptiq.vegobike.model.SparePartModel</class>
+		<class>com.eptiq.vegobike.model.SparePartOrderItem</class>
+		<class>com.eptiq.vegobike.model.SparePartOrder</class>
+		<class>com.eptiq.vegobike.model.SparePart</class>
+		<class>com.eptiq.vegobike.model.Store</class>
+		<class>com.eptiq.vegobike.model.TimeSlot</class>
+		<class>com.eptiq.vegobike.model.UserDocument</class>
+		<class>com.eptiq.vegobike.model.UserNotification</class>
+		<class>com.eptiq.vegobike.model.UserOtp</class>
+		<class>com.eptiq.vegobike.model.User</class>
+		<class>com.eptiq.vegobike.model.Year</class>
+	</persistence-unit>
+</persistence>

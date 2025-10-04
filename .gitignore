@@ -1,0 +1,55 @@
+# ========================
+# Java & Spring Boot
+# ========================
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+*.log
+*.tmp
+
+# Maven / Gradle build
+/target/
+/build/
+/out/
+BikeBookingApplicationVegoBike/target/*
+
+# IntelliJ IDEA
+.idea/
+/*.iws
+/*.ipr
+/*.iml
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# VS Code
+.vscode/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment & Secrets
+*.env
+application-*.yml
+application-*.properties
+
+# Node (if you have frontend in same repo)
+node_modules/
+dist/
+
+# Test reports
+/test-output/
+/surefire-reports/
+/jacoco/
+
+# Other
+*.swp
+*.swo

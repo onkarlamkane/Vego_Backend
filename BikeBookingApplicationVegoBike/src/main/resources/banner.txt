@@ -1,0 +1,45 @@
+${AnsiColor.BRIGHT_BLUE}
+ __     __                  ____  _ _
+ \ \   / /__  __ _  ___    | __ )(_) | _____
+  \ \ / / _ \/ _` |/ _ \   |  _ \| | |/ / _ \
+   \ V /  __/ (_| | (_) |  | |_) | |   <  __/
+    \_/ \___|\__, |\___/   |____/|_|_|\_\___|
+             |___/
+
+${AnsiColor.BRIGHT_YELLOW}🚧 DEVELOPMENT MODE ACTIVE 🚧${AnsiColor.DEFAULT}
+
+${AnsiColor.BRIGHT_CYAN}═══════════════════════════════════════════════════════${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_GREEN}Application${AnsiColor.DEFAULT}   :: ${AnsiColor.BRIGHT_WHITE}VegoBike Backend API (Dev)${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_GREEN}Version${AnsiColor.DEFAULT}       :: ${AnsiColor.BRIGHT_YELLOW}${spring.application.version:1.0.0-SNAPSHOT}${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_GREEN}Environment${AnsiColor.DEFAULT}   :: ${AnsiColor.BRIGHT_RED}Development 🛠️${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_GREEN}Profile${AnsiColor.DEFAULT}       :: ${AnsiColor.BRIGHT_MAGENTA}${spring.profiles.active:dev}${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_GREEN}Server Port${AnsiColor.DEFAULT}   :: ${AnsiColor.BRIGHT_CYAN}${server.port:8080}${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_GREEN}Context Path${AnsiColor.DEFAULT}  :: ${AnsiColor.BRIGHT_CYAN}${server.servlet.context-path:/}${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_CYAN}═══════════════════════════════════════════════════════${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_GREEN}Database${AnsiColor.DEFAULT}      :: ${AnsiColor.BRIGHT_WHITE}${spring.datasource.url:Not Configured}${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_GREEN}Redis${AnsiColor.DEFAULT}         :: ${AnsiColor.BRIGHT_WHITE}${spring.data.redis.host:localhost}:${spring.data.redis.port:6379}${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_GREEN}JWT Secret${AnsiColor.DEFAULT}    :: ${AnsiColor.BRIGHT_RED}Development Key (Not Secure)${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_CYAN}═══════════════════════════════════════════════════════${AnsiColor.DEFAULT}
+
+${AnsiColor.BRIGHT_YELLOW}🔗 Developer Quick Links:${AnsiColor.DEFAULT}
+   ${AnsiColor.BRIGHT_WHITE}🏠 Application    :: http://localhost:${server.port:8080}${server.servlet.context-path:}${AnsiColor.DEFAULT}
+   ${AnsiColor.BRIGHT_WHITE}📊 Health Check   :: http://localhost:${server.port:8080}${server.servlet.context-path:}/actuator/health${AnsiColor.DEFAULT}
+   ${AnsiColor.BRIGHT_WHITE}📖 API Docs       :: http://localhost:${server.port:8080}${server.servlet.context-path:}/swagger-ui.html${AnsiColor.DEFAULT}
+   ${AnsiColor.BRIGHT_WHITE}📈 Metrics        :: http://localhost:${server.port:8080}${server.servlet.context-path:}/actuator/metrics${AnsiColor.DEFAULT}
+   ${AnsiColor.BRIGHT_WHITE}🔍 H2 Console     :: http://localhost:${server.port:8080}${server.servlet.context-path:}/h2-console${AnsiColor.DEFAULT}
+
+${AnsiColor.BRIGHT_GREEN}📝 Available API Endpoints:${AnsiColor.DEFAULT}
+   ${AnsiColor.BRIGHT_CYAN}• Models    :: GET/POST /api/models${AnsiColor.DEFAULT}
+   ${AnsiColor.BRIGHT_CYAN}• Stores    :: GET/POST /api/stores${AnsiColor.DEFAULT}
+   ${AnsiColor.BRIGHT_CYAN}• Auth      :: POST /api/auth/login${AnsiColor.DEFAULT}
+   ${AnsiColor.BRIGHT_CYAN}• Health    :: GET /actuator/health${AnsiColor.DEFAULT}
+
+${AnsiColor.BRIGHT_YELLOW}⚡ Development Features Enabled:${AnsiColor.DEFAULT}
+   ${AnsiColor.BRIGHT_GREEN}✅ Auto-restart on code changes${AnsiColor.DEFAULT}
+   ${AnsiColor.BRIGHT_GREEN}✅ Detailed error messages${AnsiColor.DEFAULT}
+   ${AnsiColor.BRIGHT_GREEN}✅ SQL query logging${AnsiColor.DEFAULT}
+   ${AnsiColor.BRIGHT_GREEN}✅ Debug endpoints exposed${AnsiColor.DEFAULT}
+
+${AnsiColor.BRIGHT_CYAN}═══════════════════════════════════════════════════════${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_RED}🚀 STATUS: READY FOR DEVELOPMENT${AnsiColor.DEFAULT} | ${AnsiColor.BRIGHT_YELLOW}⏰ ${AnsiDateTime.DEFAULT}${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_CYAN}═══════════════════════════════════════════════════════${AnsiColor.DEFAULT}
