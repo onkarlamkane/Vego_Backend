@@ -38,9 +38,6 @@ Thumbs.db
 
 # Environment & Secrets
 *.env
-application-*.yml
-application-*.properties
-
 # Node (if you have frontend in same repo)
 node_modules/
 dist/
