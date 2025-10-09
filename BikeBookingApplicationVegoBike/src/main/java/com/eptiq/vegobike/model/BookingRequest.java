@@ -130,6 +130,15 @@ public class BookingRequest implements Serializable {
     @Column(name = "vehicle_id")
     private int vehicleId;
 
+
+    @Column(name = "start_trip_km")
+    private Double startTripKm; // value entered at trip start
+
+    @Column(name = "end_trip_km")
+    private Double endTripKm;   // value entered at trip end
+
+
+
     public BookingRequest() {
     }
 
@@ -427,5 +436,22 @@ public class BookingRequest implements Serializable {
         }
 
     }
+
+    public Double getStartTripKm() {
+        return startTripKm;
+    }
+
+    public void setStartTripKm(Double startTripKm) {
+        this.startTripKm = startTripKm;
+    }
+
+    public Double getEndTripKm() {
+        return endTripKm;
+    }
+
+    public void setEndTripKm(Double endTripKm) {
+        this.endTripKm = endTripKm;
+    }
+
 
 }

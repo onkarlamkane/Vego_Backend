@@ -71,6 +71,10 @@ public class Store implements Serializable {
 	@Column(name = "updated_at", nullable = false)
 	private Timestamp updatedAt;
 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "city_id", nullable = true)
+	private City city;
+
 	@PrePersist
 	protected void onCreate() {
 		if (isActive == null) isActive = 1;

@@ -18,9 +18,9 @@ public interface BookingBikeService {
 
     BookingBikeResponse acceptBooking(int bookingId);
 
-    BookingBikeResponse startTrip(String bookingId, MultipartFile[] images, HttpServletRequest httpRequest);
+    BookingBikeResponse startTrip(String bookingId, MultipartFile[] images, Double startTripKm, HttpServletRequest httpRequest);
 
-    BookingBikeResponse endTrip(String bookingId, MultipartFile[] images, HttpServletRequest httpRequest);
+    BookingBikeResponse endTrip(String bookingId, MultipartFile[] images, Double endTrip , HttpServletRequest httpRequest);
     InvoiceDto completeBooking(int bookingId);
 
     BookingBikeResponse cancelBooking(int bookingId);
@@ -28,5 +28,10 @@ public interface BookingBikeService {
     void addAdditionalCharges(String bookingId, Float charges, String details);
 
     List<BookingBikeResponse> getBookingsByCustomerWithOptions(int customerId, int page, int size, String sortBy);
+
+    void updateOnlinePayment(String orderId, String paymentId, String signature) throws Exception;
+
+    BookingBikeResponse createBookingByAdmin(BookingRequestDto bookingRequestDto);
+
 
 }

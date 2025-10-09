@@ -1,13 +1,13 @@
 package com.eptiq.vegobike.controllers;
 
+import com.eptiq.vegobike.dtos.AdminRegisterAndBookRequest;
 import com.eptiq.vegobike.dtos.BookingBikeResponse;
 import com.eptiq.vegobike.dtos.BookingRequestDto;
 import com.eptiq.vegobike.dtos.InvoiceDto;
-import com.eptiq.vegobike.exceptions.ActiveBookingExistsException;
-import com.eptiq.vegobike.exceptions.DocumentVerificationException;
-import com.eptiq.vegobike.exceptions.ResourceNotFoundException;
-import com.eptiq.vegobike.exceptions.UnauthorizedException;
+import com.eptiq.vegobike.exceptions.*;
+import com.eptiq.vegobike.model.User;
 import com.eptiq.vegobike.services.BookingBikeService;
+import com.eptiq.vegobike.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,11 +28,8 @@ import java.util.Map;
 public class BookingBikeController {
 
     private final BookingBikeService service;
+    private final UserService userService;
 
-//    @PostMapping("/create")
-//    public ResponseEntity<BookingBikeResponse> create(@RequestBody BookingRequestDto request) {
-//        return ResponseEntity.ok(service.createBookingBike(request));
-//    }
 
     @PostMapping("/create")
     public ResponseEntity<?> create(
@@ -43,8 +40,14 @@ public class BookingBikeController {
 
             BookingBikeResponse response = service.createBookingBike(request, httpRequest);
 
-            log.info("✅ Booking created successfully - Booking ID: {}, Status: {}",
-                    response.getBookingId(), response.getStatus());
+            log.info("✅ Booking created successfully - Booking ID: {}, Payment Type: {}, Payment Status: {}",
+                    response.getBookingId(), response.getPaymentType(), response.getPaymentStatus());
+
+            // In case of online payment, additionally log or return Razorpay order details
+            if (response.getPaymentType() != null && response.getPaymentType() == 2) { // Online payment
+                log.info("🔗 Razorpay order ID (merchantTransactionId): {}", response.getMerchantTransactionId());
+                log.debug("🔗 Razorpay order details (JSON): {}", response.getRazorpayOrderDetails());
+            }
 
             return ResponseEntity.ok(response);
 
@@ -81,11 +84,11 @@ public class BookingBikeController {
             return ResponseEntity.badRequest().body(errorResponse);
 
         } catch (Exception e) {
-            log.error("💥 Unexpected error during booking creation: {}", e.getMessage(), e);
+            log.error("💥 Unexpected error during booking creation or payment: {}", e.getMessage(), e);
 
             Map<String, Object> errorResponse = Map.of(
                     "status", "BOOKING_FAILED",
-                    "message", "Failed to create booking. Please try again later.",
+                    "message", "Failed to create booking or initiate payment. Please try again later.",
                     "errorCode", "BOOKING_999",
                     "timestamp", System.currentTimeMillis()
             );
@@ -182,6 +185,7 @@ public class BookingBikeController {
     public ResponseEntity<?> startTrip(
             @PathVariable String bookingId,
             @RequestPart(value = "images") MultipartFile[] images,
+            @RequestParam("startTripKm") Double startTripKm,
             HttpServletRequest httpRequest) {
         try {
             log.info("📋 Processing trip start request for booking: {}", bookingId);
@@ -203,7 +207,7 @@ public class BookingBikeController {
                 return ResponseEntity.badRequest().body(errorResponse);
             }
 
-            BookingBikeResponse response = service.startTrip(bookingId, images, httpRequest);
+            BookingBikeResponse response = service.startTrip(bookingId, images, startTripKm, httpRequest);
 
             log.info("✅ Trip started successfully for booking: {}", bookingId);
             return ResponseEntity.ok(response);
@@ -262,6 +266,7 @@ public class BookingBikeController {
     public ResponseEntity<?> endTrip(
             @PathVariable String bookingId,
             @RequestPart(value = "images") MultipartFile[] images,
+            @RequestParam("endTripKm") Double endTripKm,
             HttpServletRequest httpRequest) {
         try {
             log.info("📋 Processing trip end request for booking: {}", bookingId);
@@ -283,7 +288,7 @@ public class BookingBikeController {
                 return ResponseEntity.badRequest().body(errorResponse);
             }
 
-            BookingBikeResponse response = service.endTrip(bookingId, images, httpRequest);
+            BookingBikeResponse response = service.endTrip(bookingId, images, endTripKm, httpRequest);
 
             log.info("✅ Trip ended successfully for booking: {}", bookingId);
             return ResponseEntity.ok(response);
@@ -417,4 +422,38 @@ public class BookingBikeController {
             @RequestParam(defaultValue = "latest") String sortBy) {
         return ResponseEntity.ok(service.getBookingsByCustomerWithOptions(customerId, page, size, sortBy));
     }
+
+    @PostMapping("/payment/razorpay/confirm")
+    public ResponseEntity<?> razorpayPaymentConfirm(
+            @RequestParam String orderId,
+            @RequestParam String paymentId,
+            @RequestParam String signature
+    ) {
+        try {
+            service.updateOnlinePayment(orderId, paymentId, signature);
+            return ResponseEntity.ok(Map.of("status", "updated"));
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body(Map.of("status", "error", "message", ex.getMessage()));
+        }
+    }
+
+
+    @PostMapping("/admin/bookings/register-and-book")
+    public ResponseEntity<BookingBikeResponse> adminRegisterAndBook(
+            @RequestBody AdminRegisterAndBookRequest request
+    ) {
+        User user;
+        try {
+            user = userService.getUserByPhoneNumber(request.getCustomer().getPhoneNumber());
+        } catch (UserNotFoundException ex) {
+            user = userService.adminRegisterUser(request.getCustomer());
+        }
+        request.getBooking().setCustomerId(user.getId().intValue());
+        BookingBikeResponse bookingResponse = service.createBookingByAdmin(request.getBooking());
+        return ResponseEntity.ok(bookingResponse);
+    }
+
+
+
+
 }

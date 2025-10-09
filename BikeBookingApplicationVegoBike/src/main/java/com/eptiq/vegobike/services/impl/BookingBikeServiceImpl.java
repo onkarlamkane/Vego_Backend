@@ -13,6 +13,7 @@ import com.eptiq.vegobike.model.BookingRequest;
 import com.eptiq.vegobike.repositories.*;
 import com.eptiq.vegobike.services.BookingBikeService;
 import com.eptiq.vegobike.services.JwtService;
+import com.eptiq.vegobike.services.RazorpayService;
 import com.eptiq.vegobike.services.UserDocumentService;
 import com.eptiq.vegobike.utils.ImageUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,27 +51,64 @@ public class BookingBikeServiceImpl implements BookingBikeService {
     private final JwtService jwtService;
     private final UserDocumentService userDocumentService;
     private final BookingStatusRepository bookingStatusRepository;
+    private final RazorpayService razorpayService;
 
 
     @Override
     public BookingBikeResponse createBookingBike(BookingRequestDto request, HttpServletRequest httpRequest) {
         Long customerId = extractCustomerIdFromToken(httpRequest);
 
+        // Check active bookings & document status
         checkActiveBookings(customerId.intValue());
-
         boolean hasAllDocsUploaded = userDocumentService.hasAllDocumentsUploaded(customerId.intValue());
         VerificationStatus docStatus = userDocumentService.checkDocumentsForBooking(customerId.intValue());
 
         validateBookingRequest(request);
+
+        // Map DTO to Entity
         BookingRequest entity = mapper.toBookingRequestEntity(request);
         entity.setCustomerId(customerId.intValue());
         entity.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         entity.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         entity.setBookingStatus(1);
 
+        // ✅ RAZORPAY LOGIC - Create order if payment type is Online (2)
+        String razorpayOrderDetails = null;
+        log.info("🔍 Payment Type: {}", entity.getPaymentType());
+
+        if (entity.getPaymentType() == 2) { // Online payment
+            // Online payment
+            double amount = entity.getFinalAmount();
+            String currency = "INR";
+
+            try {
+                log.info("💳 Creating Razorpay order for amount: {} INR", amount);
+                String razorpayOrderJson = razorpayService.createOrder(amount, currency);
+                log.info("✅ Razorpay order created: {}", razorpayOrderJson);
+
+                org.json.JSONObject razorpayOrder = new org.json.JSONObject(razorpayOrderJson);
+                String razorpayOrderId = razorpayOrder.getString("id");
+
+                entity.setMerchantTransactionId(razorpayOrderId);
+                entity.setPaymentStatus("INITIATED");
+                razorpayOrderDetails = razorpayOrderJson;
+
+                log.info("✅ Razorpay Order ID: {}", razorpayOrderId);
+
+            } catch (Exception ex) {
+                log.error("❌ Failed to create Razorpay order: {}", ex.getMessage(), ex);
+                entity.setPaymentStatus("FAILED_INITIATION");
+                throw new RuntimeException("Failed to initialize payment gateway: " + ex.getMessage());
+            }
+        } else {
+            log.info("💵 Payment Type is COD (1)");
+            entity.setPaymentStatus("PENDING");
+        }
+
         setDefaultValues(entity, request);
         BookingRequest savedEntity = bookingRequestRepository.save(entity);
 
+        // Generate booking ID if not present
         if (savedEntity.getBookingId() == null || savedEntity.getBookingId().isEmpty()) {
             String generatedBookingId = String.format("VEGO%03d", savedEntity.getId());
             savedEntity.setBookingId(generatedBookingId);
@@ -80,21 +118,38 @@ public class BookingBikeServiceImpl implements BookingBikeService {
         Bike bike = bikeRepository.findById(savedEntity.getVehicleId()).orElse(null);
         BookingBikeResponse response = mapper.toResponse(savedEntity, bike);
 
-        if (!hasAllDocsUploaded) {
-            response.setMessage("Booking created successfully. Please upload your Aadhaar front, Aadhaar back, and Driving License documents.");
-        } else if (docStatus == VerificationStatus.PENDING) {
-            response.setMessage("Booking created successfully. Your documents are under verification.");
-        } else if (docStatus == VerificationStatus.REJECTED) {
-            response.setMessage("Booking created successfully. Your documents were rejected. Please update your Aadhaar front, Aadhaar back, and Driving License documents.");
-        } else if (docStatus == VerificationStatus.VERIFIED) {
-            response.setMessage("Booking created successfully. All your documents are verified.");
+        // ✅ CRITICAL: Set Razorpay details in response
+        response.setMerchantTransactionId(savedEntity.getMerchantTransactionId());
+        response.setPaymentStatus(savedEntity.getPaymentStatus());
+        response.setPaymentType(savedEntity.getPaymentType());
+
+        if (entity.getPaymentType() == 2) {
+            // ✅ Set Razorpay order details for frontend
+            response.setRazorpayOrderDetails(razorpayOrderDetails);
+            response.setMessage("Booking created successfully. Please complete the online payment.");
+
+            log.info("✅ Response includes Razorpay order details");
+            log.debug("📦 Razorpay Order JSON: {}", razorpayOrderDetails);
         } else {
-            response.setMessage("Booking created successfully.");
+            // COD message logic
+            if (!hasAllDocsUploaded) {
+                response.setMessage("Booking created successfully. Please upload your Aadhaar front, Aadhaar back, and Driving License documents.");
+            } else if (docStatus == VerificationStatus.PENDING) {
+                response.setMessage("Booking created successfully. Your documents are under verification.");
+            } else if (docStatus == VerificationStatus.REJECTED) {
+                response.setMessage("Booking created successfully. Your documents were rejected. Please update your documents.");
+            } else if (docStatus == VerificationStatus.VERIFIED) {
+                response.setMessage("Booking created successfully. All your documents are verified.");
+            } else {
+                response.setMessage("Booking created successfully.");
+            }
         }
+
+        log.info("✅ Final response - Booking ID: {}, Payment Type: {}, Merchant TX ID: {}",
+                response.getBookingId(), response.getPaymentType(), response.getMerchantTransactionId());
 
         return response;
     }
-
 
 
     private void checkActiveBookings(int customerId) {
@@ -296,7 +351,7 @@ public class BookingBikeServiceImpl implements BookingBikeService {
     }
 
     @Override
-    public BookingBikeResponse startTrip(String bookingId, MultipartFile[] images, HttpServletRequest httpRequest) {
+    public BookingBikeResponse startTrip(String bookingId, MultipartFile[] images, Double startTripKm, HttpServletRequest httpRequest) {
         try {
             log.info("🚗 Processing trip start for booking: {}", bookingId);
 
@@ -339,6 +394,7 @@ public class BookingBikeServiceImpl implements BookingBikeService {
             storeTripStartImages(br, images, userId.intValue());
 
             // Update booking status to "Start Trip" (status = 3)
+            br.setStartTripKm(startTripKm);
             br.setBookingStatus(3); // Start Trip
             br.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
@@ -366,7 +422,7 @@ public class BookingBikeServiceImpl implements BookingBikeService {
     }
 
     @Override
-    public BookingBikeResponse endTrip(String bookingId, MultipartFile[] images, HttpServletRequest httpRequest) {
+    public BookingBikeResponse endTrip(String bookingId, MultipartFile[] images, Double endTripKm , HttpServletRequest httpRequest) {
         try {
             log.info("🏁 Processing trip end for booking: {}", bookingId);
 
@@ -409,6 +465,7 @@ public class BookingBikeServiceImpl implements BookingBikeService {
             storeTripEndImages(br, images, userId.intValue());
 
             // Update booking status to "End Trip" (status = 4)
+            br.setEndTripKm(endTripKm);
             br.setBookingStatus(4); // End Trip
             br.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
@@ -685,6 +742,53 @@ public class BookingBikeServiceImpl implements BookingBikeService {
             throw new RuntimeException("Failed to store trip end images: " + e.getMessage(), e);
         }
     }
+
+
+    @Override
+    public void updateOnlinePayment(String razorpayOrderId, String paymentId, String signature) {
+        boolean verified = razorpayService.verifySignature(razorpayOrderId, paymentId, signature);
+        BookingRequest booking = bookingRequestRepository.findByMerchantTransactionId(razorpayOrderId)
+                .orElseThrow(() -> new RuntimeException("Booking not found for Razorpay order: " + razorpayOrderId));
+
+        if(verified) {
+            booking.setTransactionId(paymentId);
+            booking.setPaymentStatus("PAID");
+        } else {
+            booking.setPaymentStatus("FAILED_VERIFICATION");
+        }
+        bookingRequestRepository.save(booking);
+    }
+
+    @Override
+    public BookingBikeResponse createBookingByAdmin(BookingRequestDto bookingRequestDto) {
+        // Validate bookingRequestDto as needed
+
+        // Set booking meta for admin booking (could log admin as 'createdBy' etc)
+        BookingRequest entity = mapper.toBookingRequestEntity(bookingRequestDto);
+        entity.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        entity.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        entity.setBookingStatus(1);
+
+        // Save booking
+        BookingRequest savedBooking = bookingRequestRepository.save(entity);
+
+        // Generate Booking ID if necessary
+        if (savedBooking.getBookingId() == null || savedBooking.getBookingId().isEmpty()) {
+            String generatedBookingId = String.format("VEGO%03d", savedBooking.getId());
+            savedBooking.setBookingId(generatedBookingId);
+            savedBooking = bookingRequestRepository.save(savedBooking);
+        }
+
+        // Get full bike info for response if required
+        Bike bike = bikeRepository.findById(savedBooking.getVehicleId()).orElse(null);
+
+        // Build and return response
+        BookingBikeResponse response = mapper.toResponse(savedBooking, bike);
+        response.setMessage("Booking created by admin successfully.");
+        return response;
+    }
+
+
 
 
 }

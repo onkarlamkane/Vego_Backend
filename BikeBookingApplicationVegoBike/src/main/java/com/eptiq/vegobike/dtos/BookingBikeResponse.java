@@ -55,6 +55,9 @@ public class BookingBikeResponse {
     private String formatedStartDate;
     private String formatedEndDate;
     private String createdDate;
+    private String razorpayOrderDetails;
     private BikeResponseDTO bikeDetails; // Nested DTO
     private String message;
+    private Double startTripKm;
+    private Double endTripKm;
 }

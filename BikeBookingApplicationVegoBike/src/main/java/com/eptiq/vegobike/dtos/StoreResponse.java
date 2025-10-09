@@ -19,4 +19,6 @@ public class StoreResponse {
     private Integer isActive;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+    private Integer cityId;
+    private String cityName;
 }

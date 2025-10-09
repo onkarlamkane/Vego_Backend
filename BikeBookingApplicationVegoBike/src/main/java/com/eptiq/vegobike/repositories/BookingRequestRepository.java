@@ -85,6 +85,9 @@ public interface BookingRequestRepository extends JpaRepository<BookingRequest, 
             "FROM BookingRequest br WHERE br.customerId = :customerId")
     Object[] getBookingStatsByCustomerId(@Param("customerId") int customerId);
 
+    Optional<BookingRequest> findByMerchantTransactionId(String merchantTransactionId);
+
+
 
 
 }

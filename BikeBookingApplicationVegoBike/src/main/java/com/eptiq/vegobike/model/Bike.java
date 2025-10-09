@@ -83,7 +83,7 @@ public class Bike implements Serializable {
 
 	private String name;
 
-	private int price;
+	private Integer price;
 
 	@Lob
 	@Column(name="puc_image")

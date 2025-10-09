@@ -181,4 +181,6 @@ public interface UserService extends UserDetailsService {
     UserProfileDTO updateUserProfile(Long userId, UserProfileUpdateRequest request);
     Long getUserIdFromToken(String token);
 
+    User adminRegisterUser(SimpleUserDto dto);
+
 }
