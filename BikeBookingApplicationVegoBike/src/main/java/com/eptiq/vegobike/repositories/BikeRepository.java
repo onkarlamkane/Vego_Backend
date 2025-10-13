@@ -34,6 +34,7 @@ public interface BikeRepository extends JpaRepository<com.eptiq.vegobike.model.B
     FROM bikes b
     LEFT JOIN stores s ON s.id = b.store_id
     WHERE b.is_active = 1
+          AND b.bike_status ='AVAILABLE'
       AND (
            :search IS NULL 
            OR LOWER(b.name) LIKE LOWER(CONCAT('%', :search, '%'))
@@ -52,6 +53,7 @@ public interface BikeRepository extends JpaRepository<com.eptiq.vegobike.model.B
     SELECT COUNT(*)
     FROM bikes b
     WHERE b.is_active = 1
+          AND b.bike_status = 'AVAILABLE'
       AND (
            :search IS NULL 
            OR LOWER(b.name) LIKE LOWER(CONCAT('%', :search, '%'))

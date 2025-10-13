@@ -4,6 +4,7 @@ import com.eptiq.vegobike.dtos.AvailableBikeRow;
 import com.eptiq.vegobike.dtos.BookingBikeResponse;
 import com.eptiq.vegobike.dtos.BookingRequestDto;
 import com.eptiq.vegobike.dtos.InvoiceDto;
+import com.eptiq.vegobike.enums.BikeStatus;
 import com.eptiq.vegobike.enums.VerificationStatus;
 import com.eptiq.vegobike.exceptions.*;
 import com.eptiq.vegobike.mappers.BookingBikeMapper;
@@ -402,6 +403,17 @@ public class BookingBikeServiceImpl implements BookingBikeService {
 
             BookingRequest savedBooking = bookingRequestRepository.save(br);
 
+            Bike bike = null;
+            if (savedBooking.getVehicleId() != 0) {
+                bike = bikeRepository.findById(savedBooking.getVehicleId()).orElse(null);
+            }
+            if (bike != null) {
+                bike.setBikeStatus(BikeStatus.BOOKED);
+                bikeRepository.save(bike);
+            } else {
+                log.warn("⚠ Bike not found or invalid vehicle ID {} for booking {}", savedBooking.getVehicleId(), bookingId);
+            }
+
             log.info("✅ Trip started successfully - Booking: {}, Customer: {}, Images stored: {}, Status: {} -> {}",
                     bookingId, userId, images.length, "Accepted", "Start Trip");
 
@@ -527,6 +539,17 @@ public class BookingBikeServiceImpl implements BookingBikeService {
                 booking.setBookingStatus(5); // Completed
                 booking.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
                 BookingRequest completedBooking = bookingRequestRepository.save(booking);
+
+                Bike bike = null;
+                if (completedBooking.getVehicleId() != 0) {
+                    bike = bikeRepository.findById(completedBooking.getVehicleId()).orElse(null);
+                }
+                if (bike != null) {
+                    bike.setBikeStatus(BikeStatus.AVAILABLE);
+                    bikeRepository.save(bike);
+                } else {
+                    log.warn("⚠ Bike not found or invalid vehicle ID {} for booking {}", completedBooking.getVehicleId(), bookingId);
+                }
 
                 log.info("✅ COMPLETE_BOOKING - Booking {} completed successfully", bookingId);
 

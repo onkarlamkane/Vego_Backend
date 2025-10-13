@@ -1,5 +1,6 @@
 package com.eptiq.vegobike.model;
 
+import com.eptiq.vegobike.enums.BikeStatus;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -100,6 +101,11 @@ public class Bike implements Serializable {
 
 	@Column(name="updated_at")
 	private Timestamp updatedAt;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "bike_status", nullable = true)
+	private BikeStatus bikeStatus = BikeStatus.AVAILABLE;
+
 
 	@OneToMany(mappedBy = "bike", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<BikeImage> bikeImages = new ArrayList<>();
@@ -314,6 +320,13 @@ public class Bike implements Serializable {
 
 	public void setUpdatedAt(Timestamp updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+
+	public BikeStatus getBikeStatus() {
+		return bikeStatus;
+	}
+	public void setBikeStatus(BikeStatus bikeStatus) {
+		this.bikeStatus = bikeStatus;
 	}
 
 }
