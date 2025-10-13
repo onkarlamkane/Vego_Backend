@@ -1,20 +1,3 @@
-//package com.eptiq.vegobike.services;
-//
-//import com.eptiq.vegobike.dtos.UserDocumentDTO;
-//import com.eptiq.vegobike.enums.VerificationStatus;
-//
-//public interface UserDocumentService {
-//    UserDocumentDTO getUserDocuments(int userId);
-//    UserDocumentDTO uploadDocuments(UserDocumentDTO dto);
-//    UserDocumentDTO updateVerificationStatus(int userId, VerificationStatus adhaarFrontStatus,
-//                                             VerificationStatus adhaarBackStatus,
-//                                             VerificationStatus licenseStatus);
-//
-//    VerificationStatus checkDocumentsForBooking(int userId);
-//
-//    boolean hasAllDocumentsUploaded(int userId);
-//}
-
 package com.eptiq.vegobike.services;
 
 import com.eptiq.vegobike.dtos.UserDocumentDTO;

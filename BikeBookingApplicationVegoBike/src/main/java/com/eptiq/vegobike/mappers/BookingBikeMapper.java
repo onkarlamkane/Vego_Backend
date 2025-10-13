@@ -58,8 +58,16 @@ public interface BookingBikeMapper {
     BikeResponseDTO toBikeResponseDTO(Bike bike);
 
     // DTO to entity conversion for BookingRequest
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "bookingId", ignore = true)
+    @Mapping(target = "customerId", ignore = true)
+    @Mapping(target = "bookingStatus", ignore = true)
+    @Mapping(target = "paymentStatus", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "merchantTransactionId", ignore = true)
+    @Mapping(target = "transactionId", ignore = true)
     BookingRequest toBookingRequestEntity(BookingRequestDto dto);
-
     @Named("intToBoolean")
     default boolean intToBoolean(int value) {
         return value != 0;

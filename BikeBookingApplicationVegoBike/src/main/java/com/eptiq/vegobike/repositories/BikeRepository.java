@@ -1,39 +1,3 @@
-//package com.eptiq.vegobike.repositories;
-//import com.eptiq.vegobike.model.Bike;
-//import io.lettuce.core.dynamic.annotation.Param;
-//import org.springframework.data.domain.Page;
-//import org.springframework.data.domain.Pageable;
-//import org.springframework.data.jpa.repository.JpaRepository;
-//import org.springframework.data.jpa.repository.Query;
-//import org.springframework.stereotype.Repository;
-//
-//import java.util.Date;
-//import java.util.List;
-//
-//@Repository
-//public interface BikeRepository extends JpaRepository<Bike, Integer> {
-//
-//    @Query(value = "SELECT b.*, s.store_name FROM bikes b "
-//            + "LEFT JOIN stores s ON b.store_id = s.id "
-//            + "WHERE b.is_active = 1 "
-//            + "AND (:search IS NULL OR LOWER(b.name) LIKE LOWER(CONCAT('%', :search, '%')) "
-//            + "OR LOWER(b.registration_number) LIKE LOWER(CONCAT('%', :search, '%'))) "
-//            + "AND NOT EXISTS ("
-//            + "   SELECT 1 FROM booking_requests br "
-//            + "   WHERE br.vehicle_id = b.id "
-//            + "     AND br.booking_status IN (:activeStatuses) "
-//            + "     AND br.start_date <= :selectedEndDate "
-//            + "     AND br.end_date >= :selectedStartDate"
-//            + ")", nativeQuery = true)
-//    Page<Bike> findAvailableBikes(@Param("search") String search,
-//                                  @Param("activeStatuses") List<Integer> activeStatuses,
-//                                  @Param("selectedStartDate") Date selectedStartDate,
-//                                  @Param("selectedEndDate") Date selectedEndDate,
-//                                  Pageable pageable);
-//}
-
-// src/main/java/com/eptiq/vegobike/repositories/BikeRepository.java
-
 package com.eptiq.vegobike.repositories;
 
 import com.eptiq.vegobike.dtos.AvailableBikeDto;

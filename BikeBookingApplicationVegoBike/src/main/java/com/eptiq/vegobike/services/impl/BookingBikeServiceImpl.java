@@ -1,5 +1,6 @@
 package com.eptiq.vegobike.services.impl;
 
+import com.eptiq.vegobike.dtos.AvailableBikeRow;
 import com.eptiq.vegobike.dtos.BookingBikeResponse;
 import com.eptiq.vegobike.dtos.BookingRequestDto;
 import com.eptiq.vegobike.dtos.InvoiceDto;
@@ -284,14 +285,15 @@ public class BookingBikeServiceImpl implements BookingBikeService {
 
 
     @Override
-    public List<BookingBikeResponse> getAllBookingBikes() {
-        return bookingRequestRepository.findAll().stream()
-                .map(booking -> {
-                    Bike bike = bikeRepository.findById(booking.getVehicleId()).orElse(null);
-                    return mapper.toResponse(booking, bike);
-                })
+    public Page<BookingBikeResponse> getAllBookingBikes(Pageable pageable) {
+        log.debug("📋 Fetching bookings with pagination: {}", pageable);
 
-                .collect(Collectors.toList());
+        Page<BookingRequest> bookingPage = bookingRequestRepository.findAll(pageable);
+
+        return bookingPage.map(booking -> {
+            Bike bike = bikeRepository.findById(booking.getVehicleId()).orElse(null);
+            return mapper.toResponse(booking, bike);
+        });
     }
 
     @Override
@@ -492,28 +494,46 @@ public class BookingBikeServiceImpl implements BookingBikeService {
         }
     }
 
+    @Override
+    public String shouldPromptEndTripKm(int bookingId) {
+        BookingRequest booking = bookingRequestRepository.findById(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
+        if (booking.getBookingStatus() == 3) {
+            return "PROMPT_END_TRIP_KM";
+        }
+        return "NO_PROMPT";
+    }
 
     @Override
     @Transactional
-    public InvoiceDto completeBooking(int bookingId) {
+    public InvoiceDto completeBooking(int bookingId, Double endTripKm) {
         try {
             log.info("🏁 COMPLETE_BOOKING - Completing booking ID: {}", bookingId);
 
-            // Fetch booking from booking_requests table
             BookingRequest booking = bookingRequestRepository.findById(bookingId)
                     .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
 
-            // Update status to 5 (Completed)
-            booking.setBookingStatus(5);
-            booking.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            // If status is 'Start Trip', require endTripKm and transition
+            if (booking.getBookingStatus() == 3) {
+                if (endTripKm == null) {
+                    throw new IllegalStateException("End Trip KM must be provided to complete trip from 'Start Trip' status.");
+                }
+                booking.setEndTripKm(endTripKm);
+                booking.setBookingStatus(4); // Move to End Trip first
+            }
 
-            BookingRequest completedBooking = bookingRequestRepository.save(booking);
+            // Only allow completing if status is now 'End Trip'
+            if (booking.getBookingStatus() == 4) {
+                booking.setBookingStatus(5); // Completed
+                booking.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+                BookingRequest completedBooking = bookingRequestRepository.save(booking);
 
-            log.info("✅ COMPLETE_BOOKING - Booking {} completed successfully", bookingId);
+                log.info("✅ COMPLETE_BOOKING - Booking {} completed successfully", bookingId);
 
-            // ✅ Generate and return invoice
-            return generateInvoice(completedBooking);
-
+                return generateInvoice(completedBooking);
+            } else {
+                throw new IllegalStateException("Trip can only be completed from 'Start Trip' (with endTripKm) or 'End Trip' status.");
+            }
         } catch (ResourceNotFoundException e) {
             log.error("❌ COMPLETE_BOOKING - Booking not found: {}", bookingId);
             throw e;
@@ -522,7 +542,6 @@ public class BookingBikeServiceImpl implements BookingBikeService {
             throw new RuntimeException("Failed to complete booking: " + e.getMessage());
         }
     }
-
 
     /**
      * ✅ Generate invoice from completed booking
@@ -787,6 +806,60 @@ public class BookingBikeServiceImpl implements BookingBikeService {
         response.setMessage("Booking created by admin successfully.");
         return response;
     }
+
+
+    @Override
+    @Transactional
+    public BookingBikeResponse exchangeBike(int bookingId, int newBikeId) {
+        BookingRequest booking = bookingRequestRepository.findById(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+
+        List<Integer> allowedStatuses = Arrays.asList(1, 2, 3);
+        if (!allowedStatuses.contains(booking.getBookingStatus())) {
+            throw new IllegalStateException("Bike exchange is only allowed for Confirmed, Accepted, or Start Trip.");
+        }
+
+        Bike newBike = bikeRepository.findById(newBikeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Bike not found"));
+        Bike oldBike = bikeRepository.findById(booking.getVehicleId()).orElse(null);
+
+        if (oldBike != null && newBike.getCategoryId() != oldBike.getCategoryId()) {
+            throw new IllegalStateException("Cannot exchange to a bike in a different category.");
+        }
+
+        booking.setVehicleId(newBikeId);
+        booking.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        BookingRequest updatedBooking = bookingRequestRepository.save(booking);
+
+        // Use MapStruct mapping, assuming mapper autowired
+        return bookingRequestMapper.toBookingResponseDto(updatedBooking, newBike);
+
+    }
+
+    @Override
+    public List<AvailableBikeRow> getAvailableBikesForExchangeCategory(int bookingId) {
+        BookingRequest booking = bookingRequestRepository.findById(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+
+        Bike currentBike = bikeRepository.findById(booking.getVehicleId())
+                .orElseThrow(() -> new ResourceNotFoundException("Bike not found"));
+
+        // Active statuses that should block availability
+        List<Integer> activeStatuses = Arrays.asList(1, 2, 3, 4);
+
+        Page<AvailableBikeRow> bikesPage = bikeRepository.findAvailableBikeRows(
+                null,
+                activeStatuses,
+                booking.getStartDate(),
+                booking.getEndDate(),
+                Pageable.unpaged()
+        );
+
+        return bikesPage.getContent().stream()
+                .filter(row -> row.getCategoryId() == currentBike.getCategoryId())
+                .collect(Collectors.toList());
+    }
+
 
 
 

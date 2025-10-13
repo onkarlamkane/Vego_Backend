@@ -1,9 +1,6 @@
 package com.eptiq.vegobike.controllers;
 
-import com.eptiq.vegobike.dtos.AdminRegisterAndBookRequest;
-import com.eptiq.vegobike.dtos.BookingBikeResponse;
-import com.eptiq.vegobike.dtos.BookingRequestDto;
-import com.eptiq.vegobike.dtos.InvoiceDto;
+import com.eptiq.vegobike.dtos.*;
 import com.eptiq.vegobike.exceptions.*;
 import com.eptiq.vegobike.model.User;
 import com.eptiq.vegobike.services.BookingBikeService;
@@ -11,6 +8,10 @@ import com.eptiq.vegobike.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -99,8 +101,49 @@ public class BookingBikeController {
 
 
     @GetMapping("/allBooking")
-    public ResponseEntity<List<BookingBikeResponse>> getAll() {
-        return ResponseEntity.ok(service.getAllBookingBikes());
+    public ResponseEntity<Map<String, Object>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDirection
+    ) {
+        try {
+            log.info("📋 Fetching all bookings - Page: {}, Size: {}, Sort: {} {}",
+                    page, size, sortBy, sortDirection);
+
+            // Create sort object
+            Sort.Direction direction = sortDirection.equalsIgnoreCase("asc")
+                    ? Sort.Direction.ASC
+                    : Sort.Direction.DESC;
+            Sort sort = Sort.by(direction, sortBy);
+
+            // Create pageable object
+            Pageable pageable = PageRequest.of(page, size, sort);
+
+            // Get paginated results
+            Page<BookingBikeResponse> bookingPage = service.getAllBookingBikes(pageable);
+
+            // Prepare response
+            Map<String, Object> response = new HashMap<>();
+            response.put("bookings", bookingPage.getContent());
+            response.put("currentPage", bookingPage.getNumber());
+            response.put("totalItems", bookingPage.getTotalElements());
+            response.put("totalPages", bookingPage.getTotalPages());
+            response.put("pageSize", bookingPage.getSize());
+            response.put("hasNext", bookingPage.hasNext());
+            response.put("hasPrevious", bookingPage.hasPrevious());
+
+            log.info("✅ Fetched {} bookings (Page {}/{})",
+                    bookingPage.getContent().size(),
+                    bookingPage.getNumber() + 1,
+                    bookingPage.getTotalPages());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("❌ Error fetching bookings: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @GetMapping("/getById/{id}")
@@ -346,16 +389,24 @@ public class BookingBikeController {
     @PostMapping("/{bookingId}/complete")
     public ResponseEntity<?> completeBooking(
             @PathVariable int bookingId,
+            @RequestParam(required = false) Double endTripKm,
             HttpServletRequest httpRequest) {
         try {
             log.info("🏁 Processing booking completion request for: {}", bookingId);
 
-            // ✅ Now returns InvoiceDto
-            InvoiceDto invoice = service.completeBooking(bookingId);
+            // Check if End Trip KM is required before completing
+            String requireEndTripKm = service.shouldPromptEndTripKm(bookingId);
+            if ("PROMPT_END_TRIP_KM".equals(requireEndTripKm) && endTripKm == null) {
+                return ResponseEntity.status(HttpStatus.PRECONDITION_REQUIRED).body(Map.of(
+                        "success", false,
+                        "message", "End Trip KM value is required to complete trip",
+                        "requireEndTripKm", true
+                ));
+            }
 
+            InvoiceDto invoice = service.completeBooking(bookingId, endTripKm);
             log.info("✅ Booking completed successfully and invoice generated: {}", bookingId);
 
-            // Return invoice in response
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "message", "Booking completed successfully",
@@ -370,7 +421,6 @@ public class BookingBikeController {
                     "errorCode", "COMPLETE_001",
                     "timestamp", System.currentTimeMillis()
             ));
-
         } catch (Exception e) {
             log.error("💥 Error completing booking {}: {}", bookingId, e.getMessage(), e);
             return ResponseEntity.internalServerError().body(Map.of(
@@ -452,6 +502,44 @@ public class BookingBikeController {
         BookingBikeResponse bookingResponse = service.createBookingByAdmin(request.getBooking());
         return ResponseEntity.ok(bookingResponse);
     }
+
+
+    @PostMapping("/{bookingId}/exchange-bike")
+    public ResponseEntity<?> exchangeBike(
+            @PathVariable int bookingId,
+            @RequestParam int newBikeId,
+            HttpServletRequest httpRequest) {
+        try {
+            BookingBikeResponse response = service.exchangeBike(bookingId, newBikeId);
+            return ResponseEntity.ok(response);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "INVALID_BOOKING_STATE",
+                    "message", e.getMessage(),
+                    "errorCode", "EXCHANGE_001"
+            ));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "status", "NOT_FOUND",
+                    "message", "Booking or bike not found",
+                    "errorCode", "EXCHANGE_002"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "status", "BIKE_EXCHANGE_FAILED",
+                    "message", "Failed to exchange bike.",
+                    "errorCode", "EXCHANGE_999"
+            ));
+        }
+    }
+
+    @GetMapping("/{bookingId}/exchange-available-bikes")
+    public ResponseEntity<List<AvailableBikeRow>> getAvailableBikesForExchange(
+            @PathVariable int bookingId) {
+        List<AvailableBikeRow> availableBikes = service.getAvailableBikesForExchangeCategory(bookingId);
+        return ResponseEntity.ok(availableBikes);
+    }
+
 
 
 

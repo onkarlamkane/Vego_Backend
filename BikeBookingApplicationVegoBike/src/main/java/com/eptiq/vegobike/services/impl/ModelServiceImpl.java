@@ -162,6 +162,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -261,10 +262,38 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     public List<ModelResponse> listActive() {
-        return modelRepository.findByIsActiveEquals(1)
-                .stream()
-                .map(mapper::toResponse)
-                .toList();
+        try {
+            log.debug("Fetching active models from database...");
+
+            // Test the repository first
+            List<Model> models = modelRepository.findByIsActive(1);
+            log.info("Found {} active models in database", models.size());
+
+            if (models.isEmpty()) {
+                log.warn("No active models found in database");
+                return new ArrayList<>();
+            }
+
+            // Convert to response DTOs using MapStruct
+            List<ModelResponse> responses = new ArrayList<>();
+            for (Model model : models) {
+                try {
+                    // Use MapStruct method: mapper.toResponse() NOT mapper.map()
+                    ModelResponse response = mapper.toResponse(model);
+                    responses.add(response);
+                } catch (Exception e) {
+                    log.error("Error mapping model {} to response", model.getId(), e);
+                    // Continue with other models instead of failing completely
+                }
+            }
+
+            log.info("Successfully converted {} models to responses", responses.size());
+            return responses;
+
+        } catch (Exception e) {
+            log.error("Error fetching active models", e);
+            throw new RuntimeException("Failed to fetch active models", e);
+        }
     }
 
     @Override

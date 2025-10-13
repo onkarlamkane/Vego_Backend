@@ -6,6 +6,8 @@ import com.eptiq.vegobike.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -544,9 +546,11 @@ public class AuthenticationController {
     @GetMapping("/users")
     public ResponseEntity<Map<String, Object>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy) {
         try {
-            var pageable = PageRequest.of(page, size);
+            // 🧩 Sort descending by given field (default: id)
+            Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
             var usersPage = authService.getAllUsers(pageable);
 
             return ResponseEntity.ok(Map.of(
@@ -554,6 +558,8 @@ public class AuthenticationController {
                     "totalPages", usersPage.getTotalPages(),
                     "currentPage", page,
                     "pageSize", size,
+                    "sortBy", sortBy,
+                    "sortOrder", "DESC",
                     "users", usersPage.getContent(),
                     "timestamp", LocalDateTime.now()
             ));
@@ -566,6 +572,7 @@ public class AuthenticationController {
             ));
         }
     }
+
 
     // ---------- Utility Methods ----------
     private String getClientIP(HttpServletRequest request) {

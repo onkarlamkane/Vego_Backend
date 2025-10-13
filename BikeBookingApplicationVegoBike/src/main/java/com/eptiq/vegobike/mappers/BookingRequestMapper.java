@@ -10,4 +10,20 @@ public interface BookingRequestMapper {
     BookingRequest toEntity(BookingRequestDto dto);
 
     BookingBikeResponse toBookingResponseDto(BookingRequest entity);
+
+    @Mapping(target = "bikeDetails", source = "bike")
+    @Mapping(target = "id", source = "entity.id")
+    @Mapping(target = "createdAt", source = "entity.createdAt")
+    @Mapping(target = "updatedAt", source = "entity.updatedAt")
+    BookingBikeResponse toBookingResponseDto(BookingRequest entity, Bike bike);
+
+    @Mapping(target = "isPuc", source = "isPuc", qualifiedByName = "intToBoolean")
+    @Mapping(target = "isInsurance", source = "isInsurance", qualifiedByName = "intToBoolean")
+    @Mapping(target = "isDocuments", source = "isDocuments", qualifiedByName = "intToBoolean")
+    BikeResponseDTO toBikeResponseDTO(Bike bike);
+
+    @Named("intToBoolean")
+    static boolean intToBoolean(int value) {
+        return value != 0;
+    }
 }

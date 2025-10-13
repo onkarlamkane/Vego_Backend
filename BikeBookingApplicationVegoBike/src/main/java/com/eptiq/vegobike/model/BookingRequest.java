@@ -19,17 +19,17 @@ public class BookingRequest implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Column(name = "additional_charges")
-    private float additionalCharges;
+    private Float additionalCharges;
 
     @Lob
     @Column(name = "additional_charges_details")
     private String additionalChargesDetails;
 
     @Column(name = "additional_hours")
-    private float additionalHours;
+    private Float additionalHours;
 
     @Lob
     private String address;
@@ -38,39 +38,39 @@ public class BookingRequest implements Serializable {
     private String addressType;
 
     @Column(name = "advance_amount")
-    private float advanceAmount;
+    private Float advanceAmount;
 
     @Column(name = "booking_id")
     private String bookingId;
 
     @Column(name = "booking_status")
-    private int bookingStatus;
+    private Integer bookingStatus;
 
-    private float charges;
+    private Float charges;
 
     @Column(name = "coupon_amount")
-    private float couponAmount;
+    private Float couponAmount;
 
     @Column(name = "coupon_code")
     private String couponCode;
 
     @Column(name = "coupon_id")
-    private int couponId;
+    private Integer couponId;
 
     @Column(name = "created_at")
     private Timestamp createdAt;
 
     @Column(name = "customer_id")
-    private int customerId;
+    private Integer customerId;
 
     @Column(name = "delivery_charges")
-    private float deliveryCharges;
+    private Float deliveryCharges;
 
     @Column(name = "delivery_type")
     private String deliveryType;
 
     @Column(name = "drop_location_id")
-    private int dropLocationId;
+    private Integer dropLocationId;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "end_date")
@@ -81,17 +81,17 @@ public class BookingRequest implements Serializable {
     private Date endDate1;
 
     @Column(name = "final_amount")
-    private float finalAmount;
+    private Float finalAmount;
 
-    private float gst;
+    private Float gst;
 
-    private double km;
+    private Double km;
 
     @Column(name = "late_end_date")
     private Timestamp lateEndDate;
 
     @Column(name = "late_fee_charges")
-    private int lateFeeCharges;
+    private Integer lateFeeCharges;
 
     @Lob
     @Column(name = "merchant_transaction_id")
@@ -102,10 +102,10 @@ public class BookingRequest implements Serializable {
     private String paymentStatus;
 
     @Column(name = "payment_type")
-    private int paymentType;
+    private Integer paymentType;
 
     @Column(name = "pickup_location_id")
-    private int pickupLocationId;
+    private Integer pickupLocationId;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "start_date")
@@ -116,10 +116,10 @@ public class BookingRequest implements Serializable {
     private Date startDate1;
 
     @Column(name = "total_charges")
-    private float totalCharges;
+    private Float totalCharges;
 
     @Column(name = "total_hours")
-    private float totalHours;
+    private Float totalHours;
 
     @Column(name = "transaction_id")
     private String transactionId;
@@ -128,7 +128,7 @@ public class BookingRequest implements Serializable {
     private Timestamp updatedAt;
 
     @Column(name = "vehicle_id")
-    private int vehicleId;
+    private Integer vehicleId;
 
 
     @Column(name = "start_trip_km")
@@ -150,11 +150,11 @@ public class BookingRequest implements Serializable {
         this.id = id;
     }
 
-    public float getAdditionalCharges() {
+    public Float getAdditionalCharges() {
         return this.additionalCharges;
     }
 
-    public void setAdditionalCharges(float additionalCharges) {
+    public void setAdditionalCharges(Float additionalCharges) {
         this.additionalCharges = additionalCharges;
     }
 
@@ -166,11 +166,11 @@ public class BookingRequest implements Serializable {
         this.additionalChargesDetails = additionalChargesDetails;
     }
 
-    public float getAdditionalHours() {
+    public Float getAdditionalHours() {
         return this.additionalHours;
     }
 
-    public void setAdditionalHours(float additionalHours) {
+    public void setAdditionalHours(Float additionalHours) {
         this.additionalHours = additionalHours;
     }
 
@@ -190,11 +190,11 @@ public class BookingRequest implements Serializable {
         this.addressType = addressType;
     }
 
-    public float getAdvanceAmount() {
+    public Float getAdvanceAmount() {
         return this.advanceAmount;
     }
 
-    public void setAdvanceAmount(float advanceAmount) {
+    public void setAdvanceAmount(Float advanceAmount) {
         this.advanceAmount = advanceAmount;
     }
 
@@ -206,7 +206,7 @@ public class BookingRequest implements Serializable {
         this.bookingId = bookingId;
     }
 
-    public int getBookingStatus() {
+    public Integer getBookingStatus() {
         return this.bookingStatus;
     }
 
@@ -214,19 +214,19 @@ public class BookingRequest implements Serializable {
         this.bookingStatus = bookingStatus;
     }
 
-    public float getCharges() {
+    public Float getCharges() {
         return this.charges;
     }
 
-    public void setCharges(float charges) {
+    public void setCharges(Float charges) {
         this.charges = charges;
     }
 
-    public float getCouponAmount() {
+    public Float getCouponAmount() {
         return this.couponAmount;
     }
 
-    public void setCouponAmount(float couponAmount) {
+    public void setCouponAmount(Float couponAmount) {
         this.couponAmount = couponAmount;
     }
 
@@ -238,7 +238,7 @@ public class BookingRequest implements Serializable {
         this.couponCode = couponCode;
     }
 
-    public int getCouponId() {
+    public Integer getCouponId() {
         return this.couponId;
     }
 
@@ -254,7 +254,7 @@ public class BookingRequest implements Serializable {
         this.createdAt = createdAt;
     }
 
-    public int getCustomerId() {
+    public Integer getCustomerId() {
         return this.customerId;
     }
 
@@ -262,11 +262,11 @@ public class BookingRequest implements Serializable {
         this.customerId = customerId;
     }
 
-    public float getDeliveryCharges() {
+    public Float getDeliveryCharges() {
         return this.deliveryCharges;
     }
 
-    public void setDeliveryCharges(float deliveryCharges) {
+    public void setDeliveryCharges(Float deliveryCharges) {
         this.deliveryCharges = deliveryCharges;
     }
 
@@ -278,7 +278,7 @@ public class BookingRequest implements Serializable {
         this.deliveryType = deliveryType;
     }
 
-    public int getDropLocationId() {
+    public Integer getDropLocationId() {
         return this.dropLocationId;
     }
 
@@ -302,27 +302,27 @@ public class BookingRequest implements Serializable {
         this.endDate1 = endDate1;
     }
 
-    public float getFinalAmount() {
+    public Float getFinalAmount() {
         return this.finalAmount;
     }
 
-    public void setFinalAmount(float finalAmount) {
+    public void setFinalAmount(Float finalAmount) {
         this.finalAmount = finalAmount;
     }
 
-    public float getGst() {
+    public Float getGst() {
         return this.gst;
     }
 
-    public void setGst(float gst) {
+    public void setGst(Float gst) {
         this.gst = gst;
     }
 
-    public double getKm() {
+    public Double getKm() {
         return this.km;
     }
 
-    public void setKm(double km) {
+    public void setKm(Double km) {
         this.km = km;
     }
 
@@ -334,7 +334,7 @@ public class BookingRequest implements Serializable {
         this.lateEndDate = lateEndDate;
     }
 
-    public int getLateFeeCharges() {
+    public Integer getLateFeeCharges() {
         return this.lateFeeCharges;
     }
 
@@ -358,7 +358,7 @@ public class BookingRequest implements Serializable {
         this.paymentStatus = paymentStatus;
     }
 
-    public int getPaymentType() {
+    public Integer getPaymentType() {
         return this.paymentType;
     }
 
@@ -366,7 +366,7 @@ public class BookingRequest implements Serializable {
         this.paymentType = paymentType;
     }
 
-    public int getPickupLocationId() {
+    public Integer getPickupLocationId() {
         return this.pickupLocationId;
     }
 
@@ -390,19 +390,19 @@ public class BookingRequest implements Serializable {
         this.startDate1 = startDate1;
     }
 
-    public float getTotalCharges() {
+    public Float getTotalCharges() {
         return this.totalCharges;
     }
 
-    public void setTotalCharges(float totalCharges) {
+    public void setTotalCharges(Float totalCharges) {
         this.totalCharges = totalCharges;
     }
 
-    public float getTotalHours() {
+    public Float getTotalHours() {
         return this.totalHours;
     }
 
-    public void setTotalHours(float totalHours) {
+    public void setTotalHours(Float totalHours) {
         this.totalHours = totalHours;
     }
 
@@ -422,7 +422,7 @@ public class BookingRequest implements Serializable {
         this.updatedAt = updatedAt;
     }
 
-    public int getVehicleId() {
+    public Integer getVehicleId() {
         return this.vehicleId;
     }
 

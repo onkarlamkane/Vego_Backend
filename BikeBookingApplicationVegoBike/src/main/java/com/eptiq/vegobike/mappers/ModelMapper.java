@@ -7,7 +7,7 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface ModelMapper {
 
-    @Mapping(target = "brandName", source = "brand.brandName")
+    @Mapping(target = "brandName", ignore = true)
     ModelResponse toResponse(Model entity);
 
     @Mapping(target = "id", ignore = true)

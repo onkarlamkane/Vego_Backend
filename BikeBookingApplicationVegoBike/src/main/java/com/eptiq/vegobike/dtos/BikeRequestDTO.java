@@ -1,37 +1,56 @@
 package com.eptiq.vegobike.dtos;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
+import java.sql.Timestamp;
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BikeRequestDTO {
-    private String name; // ✅ Added to match DB
+public class BookingRequestDto {
+    //    private int id;
+//    private String bookingId;
+    private Integer customerId;
+    private int vehicleId;
+    private Date startDate;
+    private Date endDate;
+    private float charges;
+    private float additionalCharges;
+    private String additionalChargesDetails;
+    private float advanceAmount;
+    private float finalAmount;
+    private float gst;
+    private float totalHours;
+    //    private int bookingStatus;
+//    private String paymentStatus;
+    private String addressType;
+    private String address;
+//    private Timestamp createdAt;
+//    private Timestamp updatedAt;
 
-    private int brandId;
-    private int categoryId;
-    private int modelId;
-    private int registrationYearId;
-    private int storeId;
+    // Additional fields that match BookingRequest entity
+    private float additionalHours;
+    private float couponAmount;
+    private String couponCode;
+    private int couponId;
+    private float deliveryCharges;
+    private String deliveryType;
+    private int dropLocationId;
+    private Date endDate1;
+    private double km;
+    private Timestamp lateEndDate;
+    private int lateFeeCharges;
+    // private String merchantTransactionId;
+    private int paymentType;
+    private int pickupLocationId;
+    private Date startDate1;
+    private float totalCharges;
+    //  private String transactionId;
 
-    private String registrationNumber;
-    private String chassisNumber;
-    private String engineNumber;
-    private String latitude;
-    private String longitude;
-    private int price;
-
-    private boolean isPuc;
-    private boolean isInsurance;
-    private boolean isDocuments;
-
-    private MultipartFile pucImage;
-    private MultipartFile insuranceImage;
-    private MultipartFile documentImage;
-    private List<MultipartFile> images; // vehicle images
+    // UI display fields
+    private String statusName; // "Confirmed", "Accepted", etc.
+    private String customerName;
+    private String vehicleRegistrationNumber;
 }
