@@ -39,4 +39,8 @@ public interface BikeServiceRepository extends JpaRepository<BikeService, Long> 
     List<BikeService> findByBrandIdAndModelId(Integer brandId, Integer modelId);
     List<BikeService> findByBrandIdAndModelIdAndServiceTypeCode(Integer brandId, Integer modelId, Integer serviceTypeCode);
 
+
+    List<BikeService> findByBrandIdAndModelIdAndYearId(Integer brandId, Integer modelId, Integer yearId);
+
 }
+

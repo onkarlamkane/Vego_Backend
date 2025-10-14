@@ -1,6 +1,8 @@
 package com.eptiq.vegobike.model;
 
 import java.io.Serializable;
+
+import com.eptiq.vegobike.enums.ServiceAddressType;
 import jakarta.persistence.*;
 import java.util.Date;
 import java.sql.Timestamp;
@@ -8,7 +10,7 @@ import java.sql.Timestamp;
 
 /**
  * The persistent class for the service_orders database table.
- * 
+ *
  */
 @Entity
 @Table(name="service_orders")
@@ -86,9 +88,16 @@ public class ServiceOrder implements Serializable {
 	@Column(name="vehicle_number")
 	private String vehicleNumber;
 
-	public ServiceOrder() {
-	}
+//***********************************************
 
+	@Column(name = "doorstep_address")
+	private String doorstepAddress;
+
+	@Column(name = "service_address_type")  // NEW COLUMN
+	@Enumerated(EnumType.STRING)
+	private ServiceAddressType serviceAddressType;
+
+	//************************************
 	public long getId() {
 		return this.id;
 	}
@@ -263,6 +272,25 @@ public class ServiceOrder implements Serializable {
 
 	public void setVehicleNumber(String vehicleNumber) {
 		this.vehicleNumber = vehicleNumber;
+	}
+
+	public String getDoorstepAddress() {
+		return doorstepAddress;
+	}
+
+	public void setDoorstepAddress(String doorstepAddress) {
+		this.doorstepAddress = doorstepAddress;
+	}
+
+	public ServiceAddressType getServiceAddressType() {
+		return this.serviceAddressType;
+	}
+
+	public void setServiceAddressType(ServiceAddressType serviceAddressType) {
+		this.serviceAddressType = serviceAddressType;
+	}
+
+	public ServiceOrder() {
 	}
 
 }

@@ -24,4 +24,6 @@ public class BikeServiceDto {
     private BigDecimal price;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+
+
 }

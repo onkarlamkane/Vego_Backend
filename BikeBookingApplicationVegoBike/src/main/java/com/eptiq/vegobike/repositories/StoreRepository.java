@@ -36,5 +36,5 @@ public interface StoreRepository extends JpaRepository<Store, Integer> {
     // Count active stores
     long countByIsActive(Integer isActive);
 
-    List<Store> findByIsActive(int isActive);
+    List<Store> findByIsActive(Integer isActive);
 }

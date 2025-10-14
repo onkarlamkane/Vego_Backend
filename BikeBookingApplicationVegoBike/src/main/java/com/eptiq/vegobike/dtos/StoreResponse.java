@@ -21,4 +21,5 @@ public class StoreResponse {
     private Timestamp updatedAt;
     private Integer cityId;
     private String cityName;
+    private Boolean doorstepAvailable;
 }
