@@ -4,10 +4,12 @@ import com.eptiq.vegobike.model.Model;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface ModelRepository extends JpaRepository<Model, Integer> {
 
     // Search models by name
@@ -25,6 +27,6 @@ public interface ModelRepository extends JpaRepository<Model, Integer> {
     List<Model> findByIsActive(Integer isActive);
 
     // Or even simpler for boolean-like integer fields
-    List<Model> findByIsActiveTrue(); // if isActive = 1
-    List<Model> findByIsActiveFalse();
+//    List<Model> findByIsActiveTrue(); // if isActive = 1
+//    List<Model> findByIsActiveFalse();
 }
