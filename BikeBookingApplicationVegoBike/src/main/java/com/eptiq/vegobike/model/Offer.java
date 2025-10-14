@@ -16,7 +16,7 @@ public class Offer implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	private int id;
+	private Integer id;
 
 	@Column(name="applies_to")
 	private String appliesTo;
@@ -32,7 +32,7 @@ public class Offer implements Serializable {
 	private String discountType;
 
 	@Column(name="discount_value")
-	private int discountValue;
+	private Integer discountValue;
 
 	private String eligibility;
 
@@ -40,14 +40,14 @@ public class Offer implements Serializable {
 	private Timestamp endDate;
 
 	@Column(name="is_active")
-	private int isActive;
+	private Integer isActive;
 
-	private int limit1;
+	private Integer limit1;
 
-	private int limit2;
+	private Integer limit2;
 
 	@Column(name="minimum_amount")
-	private int minimumAmount;
+	private Integer minimumAmount;
 
 	@Column(name="offer_code")
 	private String offerCode;
@@ -61,7 +61,7 @@ public class Offer implements Serializable {
 	private String offerName;
 
 	@Column(name="remaining_coupon")
-	private int remainingCoupon;
+	private Integer remainingCoupon;
 
 	@Column(name="start_date")
 	private Timestamp startDate;
@@ -70,16 +70,16 @@ public class Offer implements Serializable {
 	private Timestamp updatedAt;
 
 	@Column(name="usage_limit")
-	private int usageLimit;
+	private Integer usageLimit;
 
 	public Offer() {
 	}
 
-	public int getId() {
+	public Integer getId() {
 		return this.id;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
@@ -115,11 +115,11 @@ public class Offer implements Serializable {
 		this.discountType = discountType;
 	}
 
-	public int getDiscountValue() {
+	public Integer getDiscountValue() {
 		return this.discountValue;
 	}
 
-	public void setDiscountValue(int discountValue) {
+	public void setDiscountValue(Integer discountValue) {
 		this.discountValue = discountValue;
 	}
 
@@ -139,35 +139,35 @@ public class Offer implements Serializable {
 		this.endDate = endDate;
 	}
 
-	public int getIsActive() {
+	public Integer getIsActive() {
 		return this.isActive;
 	}
 
-	public void setIsActive(int isActive) {
+	public void setIsActive(Integer isActive) {
 		this.isActive = isActive;
 	}
 
-	public int getLimit1() {
+	public Integer getLimit1() {
 		return this.limit1;
 	}
 
-	public void setLimit1(int limit1) {
+	public void setLimit1(Integer limit1) {
 		this.limit1 = limit1;
 	}
 
-	public int getLimit2() {
+	public Integer getLimit2() {
 		return this.limit2;
 	}
 
-	public void setLimit2(int limit2) {
+	public void setLimit2(Integer limit2) {
 		this.limit2 = limit2;
 	}
 
-	public int getMinimumAmount() {
+	public Integer getMinimumAmount() {
 		return this.minimumAmount;
 	}
 
-	public void setMinimumAmount(int minimumAmount) {
+	public void setMinimumAmount(Integer minimumAmount) {
 		this.minimumAmount = minimumAmount;
 	}
 
@@ -195,11 +195,11 @@ public class Offer implements Serializable {
 		this.offerName = offerName;
 	}
 
-	public int getRemainingCoupon() {
+	public Integer getRemainingCoupon() {
 		return this.remainingCoupon;
 	}
 
-	public void setRemainingCoupon(int remainingCoupon) {
+	public void setRemainingCoupon(Integer remainingCoupon) {
 		this.remainingCoupon = remainingCoupon;
 	}
 
@@ -219,11 +219,11 @@ public class Offer implements Serializable {
 		this.updatedAt = updatedAt;
 	}
 
-	public int getUsageLimit() {
+	public Integer getUsageLimit() {
 		return this.usageLimit;
 	}
 
-	public void setUsageLimit(int usageLimit) {
+	public void setUsageLimit(Integer usageLimit) {
 		this.usageLimit = usageLimit;
 	}
 

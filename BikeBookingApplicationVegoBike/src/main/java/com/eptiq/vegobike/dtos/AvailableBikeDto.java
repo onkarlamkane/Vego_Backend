@@ -1,23 +1,3 @@
-//package com.eptiq.vegobike.dtos;
-//
-//import lombok.Data;
-//import java.sql.Timestamp;
-//
-//@Data
-//public class AvailableBikeDto {
-//    private int id;
-//    private String name;                // Bike name
-//    private String registrationNumber;  // registration_number in table
-//    private String brand;               // If you'd like to show brand
-//    private String model;               // Optional: model name
-//    private String addressType;         // e.g., "Self Pickup"/"Delivery at location"
-//    private int isActive;
-//    private Timestamp createdAt;
-//    private Timestamp updatedAt;
-//    // You can add any other fields you want to expose
-//}
-
-
 package com.eptiq.vegobike.dtos;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -174,29 +174,7 @@ public class PriceListController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> deletePriceList(@PathVariable @Positive Long id) {
-        log.info("PRICE_LIST_CONTROLLER - Deleting price list with ID: {}", id);
 
-        try {
-            service.deletePriceList(id);
-
-            return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "message", "Price list deleted successfully",
-                    "timestamp", LocalDateTime.now()
-            ));
-
-        } catch (Exception e) {
-            log.error("PRICE_LIST_CONTROLLER - Failed to delete price list: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
-                    "success", false,
-                    "error", "DELETE_FAILED",
-                    "message", e.getMessage(),
-                    "timestamp", LocalDateTime.now()
-            ));
-        }
-    }
 
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<Map<String, Object>> getPricesByCategory(@PathVariable @Positive Integer categoryId) {
@@ -328,31 +306,5 @@ public class PriceListController {
         }
     }
 
-    @GetMapping("/affordable")
-    public ResponseEntity<Map<String, Object>> getAffordablePrices(
-            @RequestParam @Positive BigDecimal maxPrice) {
 
-        log.info("PRICE_LIST_CONTROLLER - Getting affordable prices under: {}", maxPrice);
-
-        try {
-            List<PriceListDTO> prices = service.getAffordablePrices(maxPrice);
-
-            return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "data", prices,
-                    "count", prices.size(),
-                    "maxPrice", maxPrice,
-                    "timestamp", LocalDateTime.now()
-            ));
-
-        } catch (Exception e) {
-            log.error("PRICE_LIST_CONTROLLER - Failed to get affordable prices: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                    "success", false,
-                    "error", "FETCH_FAILED",
-                    "message", e.getMessage(),
-                    "timestamp", LocalDateTime.now()
-            ));
-        }
-    }
 }

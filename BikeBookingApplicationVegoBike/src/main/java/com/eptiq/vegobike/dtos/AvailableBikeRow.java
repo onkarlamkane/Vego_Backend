@@ -1,4 +1,3 @@
-// src/main/java/com/eptiq/vegobike/dtos/AvailableBikeRow.java
 package com.eptiq.vegobike.dtos;
 
 public interface AvailableBikeRow {

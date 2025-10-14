@@ -169,65 +169,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-//    // ---------- Registration OTP verification ----------
-//    @Override
-//    public AuthResponse registerWithOtp(OTPVerificationRequest otpRequest) {
-//        String phone = otpRequest.getPhoneNumber();
-//        String providedOtp = otpRequest.getOtp();
-//
-//        log.info("🔐 REGISTRATION_OTP_VERIFY - Starting OTP verification for phone: {}",
-//                maskPhoneNumber(phone));
-//
-//        // Check for too many failed attempts
-//        if (isOTPAttemptsExceeded(phone)) {
-//            log.warn("🚫 REGISTRATION_OTP_VERIFY - Too many failed attempts for phone: {}", maskPhoneNumber(phone));
-//            throw new InvalidOTPException("Too many failed attempts. Please request a new OTP.");
-//        }
-//
-//        String otpKey = OTP_KEY_PREFIX + phone;
-//        String storedOtp = redisTemplate.opsForValue().get(otpKey);
-//
-//        log.info("🔍 REGISTRATION_OTP_VERIFY - Checking Redis key: {}, Found: {}",
-//                otpKey, storedOtp != null);
-//
-//        if (storedOtp == null) {
-//            log.warn("⏰ REGISTRATION_OTP_VERIFY - OTP expired or not found for phone: {}", maskPhoneNumber(phone));
-//            throw new InvalidOTPException("OTP expired or not found. Please request a new OTP.");
-//        }
-//
-//        if (!storedOtp.equals(providedOtp)) {
-//            incrementFailedOTPAttempts(phone);
-//            log.warn("❌ REGISTRATION_OTP_VERIFY - Invalid OTP provided. Expected: {}, Got: {} for phone: {}",
-//                    storedOtp, providedOtp, maskPhoneNumber(phone));
-//            throw new InvalidOTPException("Invalid OTP. Please try again.");
-//        }
-//
-//        // OTP correct — remove OTP and load registration payload
-//        redisTemplate.delete(otpKey);
-//        clearFailedOTPAttempts(phone);
-//
-//        String regKey = REGISTRATION_DATA_PREFIX + phone;
-//        String regJson = redisTemplate.opsForValue().get(regKey);
-//        if (regJson == null) {
-//            log.warn("⏰ REGISTRATION_OTP_VERIFY - Registration data expired for phone: {}", maskPhoneNumber(phone));
-//            throw new UserRegistrationException("Registration data expired. Please start the registration process again.");
-//        }
-//
-//        try {
-//            RegistrationRequest registrationRequest = objectMapper.readValue(regJson, RegistrationRequest.class);
-//            // Delete registration cache as well
-//            redisTemplate.delete(regKey);
-//
-//            log.info("✅ REGISTRATION_OTP_VERIFY - OTP verified successfully, proceeding with registration");
-//            // Proceed to create user
-//            return register(registrationRequest);
-//        } catch (Exception e) {
-//            log.error("💥 REGISTRATION_OTP_VERIFY - Failed to complete registration: {}", e.getMessage(), e);
-//            throw new RuntimeException("Failed to complete registration: " + e.getMessage(), e);
-//        }
-//    }
-
-
     // ---------- Registration OTP verification ----------
     @Override
     public AuthResponse registerWithOtp(OTPVerificationRequest otpRequest) {

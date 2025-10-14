@@ -1,9 +1,6 @@
 package com.eptiq.vegobike.services.impl;
 
-import com.eptiq.vegobike.dtos.AvailableBikeRow;
-import com.eptiq.vegobike.dtos.BookingBikeResponse;
-import com.eptiq.vegobike.dtos.BookingRequestDto;
-import com.eptiq.vegobike.dtos.InvoiceDto;
+import com.eptiq.vegobike.dtos.*;
 import com.eptiq.vegobike.enums.BikeStatus;
 import com.eptiq.vegobike.enums.VerificationStatus;
 import com.eptiq.vegobike.exceptions.*;
@@ -13,10 +10,7 @@ import com.eptiq.vegobike.model.Bike;
 import com.eptiq.vegobike.model.BookingBike;
 import com.eptiq.vegobike.model.BookingRequest;
 import com.eptiq.vegobike.repositories.*;
-import com.eptiq.vegobike.services.BookingBikeService;
-import com.eptiq.vegobike.services.JwtService;
-import com.eptiq.vegobike.services.RazorpayService;
-import com.eptiq.vegobike.services.UserDocumentService;
+import com.eptiq.vegobike.services.*;
 import com.eptiq.vegobike.utils.ImageUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +48,123 @@ public class BookingBikeServiceImpl implements BookingBikeService {
     private final UserDocumentService userDocumentService;
     private final BookingStatusRepository bookingStatusRepository;
     private final RazorpayService razorpayService;
+    private final OfferService offerService;
+    private final PriceListService priceListService;
 
+
+//    @Override
+//    public BookingBikeResponse createBookingBike(BookingRequestDto request, HttpServletRequest httpRequest) {
+//        Long customerId = extractCustomerIdFromToken(httpRequest);
+//
+//        // Check active bookings & document status
+//        checkActiveBookings(customerId.intValue());
+//        boolean hasAllDocsUploaded = userDocumentService.hasAllDocumentsUploaded(customerId.intValue());
+//        VerificationStatus docStatus = userDocumentService.checkDocumentsForBooking(customerId.intValue());
+//
+//        validateBookingRequest(request);
+//
+//        // Map DTO to Entity
+//        BookingRequest entity = mapper.toBookingRequestEntity(request);
+//        entity.setCustomerId(customerId.intValue());
+//        entity.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+//        entity.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+//        entity.setBookingStatus(1);
+//
+//        if (entity.getCouponCode() != null && !entity.getCouponCode().isEmpty()) {
+//            // Calculate the discounted price using your coupon logic
+//            Float finalPrice = offerService.applyOfferForUser(
+//                    entity.getCustomerId(),
+//                    entity.getVehicleId(),
+//                    entity.getCouponCode(),
+//                    entity.getFinalAmount() // or entity.getTotalCharges(), as relevant
+//            );
+//            entity.setFinalAmount(finalPrice);
+//            // (Optional: set couponAmount/discAmount field)
+//            if (finalPrice < entity.getTotalCharges()) {
+//                entity.setCouponAmount(entity.getTotalCharges() - finalPrice);
+//            } else {
+//                entity.setCouponAmount(0f);
+//            }
+//        }
+//
+//        // ✅ RAZORPAY LOGIC - Create order if payment type is Online (2)
+//        String razorpayOrderDetails = null;
+//        log.info("🔍 Payment Type: {}", entity.getPaymentType());
+//
+//        if (entity.getPaymentType() == 2) { // Online payment
+//            // Online payment
+//            double amount = entity.getFinalAmount();
+//            String currency = "INR";
+//
+//            try {
+//                log.info("💳 Creating Razorpay order for amount: {} INR", amount);
+//                String razorpayOrderJson = razorpayService.createOrder(amount, currency);
+//                log.info("✅ Razorpay order created: {}", razorpayOrderJson);
+//
+//                org.json.JSONObject razorpayOrder = new org.json.JSONObject(razorpayOrderJson);
+//                String razorpayOrderId = razorpayOrder.getString("id");
+//
+//                entity.setMerchantTransactionId(razorpayOrderId);
+//                entity.setPaymentStatus("INITIATED");
+//                razorpayOrderDetails = razorpayOrderJson;
+//
+//                log.info("✅ Razorpay Order ID: {}", razorpayOrderId);
+//
+//            } catch (Exception ex) {
+//                log.error("❌ Failed to create Razorpay order: {}", ex.getMessage(), ex);
+//                entity.setPaymentStatus("FAILED_INITIATION");
+//                throw new RuntimeException("Failed to initialize payment gateway: " + ex.getMessage());
+//            }
+//        } else {
+//            log.info("💵 Payment Type is COD (1)");
+//            entity.setPaymentStatus("PENDING");
+//        }
+//
+//        //setDefaultValues(entity, request);
+//        BookingRequest savedEntity = bookingRequestRepository.save(entity);
+//
+//        // Generate booking ID if not present
+//        if (savedEntity.getBookingId() == null || savedEntity.getBookingId().isEmpty()) {
+//            String generatedBookingId = String.format("VEGO%03d", savedEntity.getId());
+//            savedEntity.setBookingId(generatedBookingId);
+//            savedEntity = bookingRequestRepository.save(savedEntity);
+//        }
+//
+//        Bike bike = bikeRepository.findById(savedEntity.getVehicleId()).orElse(null);
+//        BookingBikeResponse response = mapper.toResponse(savedEntity, bike);
+//
+//        // ✅ CRITICAL: Set Razorpay details in response
+//        response.setMerchantTransactionId(savedEntity.getMerchantTransactionId());
+//        response.setPaymentStatus(savedEntity.getPaymentStatus());
+//        response.setPaymentType(savedEntity.getPaymentType());
+//
+//        if (entity.getPaymentType() == 2) {
+//            // ✅ Set Razorpay order details for frontend
+//            response.setRazorpayOrderDetails(razorpayOrderDetails);
+//            response.setMessage("Booking created successfully. Please complete the online payment.");
+//
+//            log.info("✅ Response includes Razorpay order details");
+//            log.debug("📦 Razorpay Order JSON: {}", razorpayOrderDetails);
+//        } else {
+//            // COD message logic
+//            if (!hasAllDocsUploaded) {
+//                response.setMessage("Booking created successfully. Please upload your Aadhaar front, Aadhaar back, and Driving License documents.");
+//            } else if (docStatus == VerificationStatus.PENDING) {
+//                response.setMessage("Booking created successfully. Your documents are under verification.");
+//            } else if (docStatus == VerificationStatus.REJECTED) {
+//                response.setMessage("Booking created successfully. Your documents were rejected. Please update your documents.");
+//            } else if (docStatus == VerificationStatus.VERIFIED) {
+//                response.setMessage("Booking created successfully. All your documents are verified.");
+//            } else {
+//                response.setMessage("Booking created successfully.");
+//            }
+//        }
+//
+//        log.info("✅ Final response - Booking ID: {}, Payment Type: {}, Merchant TX ID: {}",
+//                response.getBookingId(), response.getPaymentType(), response.getMerchantTransactionId());
+//
+//        return response;
+//    }
 
     @Override
     public BookingBikeResponse createBookingBike(BookingRequestDto request, HttpServletRequest httpRequest) {
@@ -67,22 +177,76 @@ public class BookingBikeServiceImpl implements BookingBikeService {
 
         validateBookingRequest(request);
 
-        // Map DTO to Entity
         BookingRequest entity = mapper.toBookingRequestEntity(request);
         entity.setCustomerId(customerId.intValue());
         entity.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         entity.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         entity.setBookingStatus(1);
 
-        // ✅ RAZORPAY LOGIC - Create order if payment type is Online (2)
+        // Fetch vehicle and category
+        Bike vehicle = bikeRepository.findById(entity.getVehicleId())
+                .orElseThrow(() -> new RuntimeException("Vehicle not found with ID: " + entity.getVehicleId()));
+        Integer categoryId = vehicle.getCategoryId();
+
+        // Fetch price packages for this category
+        List<PriceListDTO> prices = priceListService.getPriceListsByCategory(categoryId);
+
+        BigDecimal hourlyRate = BigDecimal.ZERO;
+        BigDecimal dailyRate = BigDecimal.ZERO;
+        for (PriceListDTO price : prices) {
+            if (price.getDays() != null) {
+                if (price.getDays() == 0) {
+                    hourlyRate = price.getPrice();
+                } else if (price.getDays() == 1) {
+                    dailyRate = price.getPrice();
+                }
+            }
+        }
+
+        // Calculate rental duration
+        Date start = entity.getStartDate();
+        Date end = entity.getEndDate();
+        long diffMillis = end.getTime() - start.getTime();
+        float totalHours = diffMillis / (1000f * 60f * 60f);
+
+        // Apply hourly/day business rule
+        BigDecimal finalAmount;
+        if (totalHours > 6.0) {
+            // Auto convert >6 hours to daily
+            int totalDays = (int) Math.ceil(totalHours / 24.0);
+            finalAmount = dailyRate.multiply(BigDecimal.valueOf(totalDays));
+            entity.setTotalHours(totalDays * 24f);
+        } else {
+            finalAmount = hourlyRate.multiply(BigDecimal.valueOf(totalHours));
+            entity.setTotalHours(totalHours);
+        }
+
+        entity.setTotalCharges(finalAmount.floatValue());
+        entity.setFinalAmount(finalAmount.floatValue());
+
+        // Coupon logic (unchanged)
+        if (entity.getCouponCode() != null && !entity.getCouponCode().isEmpty()) {
+            Float discountedPrice = offerService.applyOfferForUser(
+                    entity.getCustomerId(),
+                    entity.getVehicleId(),
+                    entity.getCouponCode(),
+                    entity.getFinalAmount()
+            );
+            entity.setFinalAmount(discountedPrice);
+            if (discountedPrice < entity.getTotalCharges()) {
+                entity.setCouponAmount(entity.getTotalCharges() - discountedPrice);
+            } else {
+                entity.setCouponAmount(0f);
+            }
+        }
+
+        // Razorpay logic (unchanged)
         String razorpayOrderDetails = null;
         log.info("🔍 Payment Type: {}", entity.getPaymentType());
 
-        if (entity.getPaymentType() == 2) { // Online payment
-            // Online payment
+        if (entity.getPaymentType() == 2) {
             double amount = entity.getFinalAmount();
             String currency = "INR";
-
             try {
                 log.info("💳 Creating Razorpay order for amount: {} INR", amount);
                 String razorpayOrderJson = razorpayService.createOrder(amount, currency);
@@ -98,7 +262,7 @@ public class BookingBikeServiceImpl implements BookingBikeService {
                 log.info("✅ Razorpay Order ID: {}", razorpayOrderId);
 
             } catch (Exception ex) {
-                log.error("❌ Failed to create Razorpay order: {}", ex.getMessage(), ex);
+                log.error("❌ Failed to create Razorpay order: {}", ex.getMessage());
                 entity.setPaymentStatus("FAILED_INITIATION");
                 throw new RuntimeException("Failed to initialize payment gateway: " + ex.getMessage());
             }
@@ -107,10 +271,8 @@ public class BookingBikeServiceImpl implements BookingBikeService {
             entity.setPaymentStatus("PENDING");
         }
 
-        setDefaultValues(entity, request);
         BookingRequest savedEntity = bookingRequestRepository.save(entity);
 
-        // Generate booking ID if not present
         if (savedEntity.getBookingId() == null || savedEntity.getBookingId().isEmpty()) {
             String generatedBookingId = String.format("VEGO%03d", savedEntity.getId());
             savedEntity.setBookingId(generatedBookingId);
@@ -120,20 +282,16 @@ public class BookingBikeServiceImpl implements BookingBikeService {
         Bike bike = bikeRepository.findById(savedEntity.getVehicleId()).orElse(null);
         BookingBikeResponse response = mapper.toResponse(savedEntity, bike);
 
-        // ✅ CRITICAL: Set Razorpay details in response
         response.setMerchantTransactionId(savedEntity.getMerchantTransactionId());
         response.setPaymentStatus(savedEntity.getPaymentStatus());
         response.setPaymentType(savedEntity.getPaymentType());
 
         if (entity.getPaymentType() == 2) {
-            // ✅ Set Razorpay order details for frontend
             response.setRazorpayOrderDetails(razorpayOrderDetails);
             response.setMessage("Booking created successfully. Please complete the online payment.");
-
             log.info("✅ Response includes Razorpay order details");
             log.debug("📦 Razorpay Order JSON: {}", razorpayOrderDetails);
         } else {
-            // COD message logic
             if (!hasAllDocsUploaded) {
                 response.setMessage("Booking created successfully. Please upload your Aadhaar front, Aadhaar back, and Driving License documents.");
             } else if (docStatus == VerificationStatus.PENDING) {
@@ -152,6 +310,7 @@ public class BookingBikeServiceImpl implements BookingBikeService {
 
         return response;
     }
+
 
 
     private void checkActiveBookings(int customerId) {

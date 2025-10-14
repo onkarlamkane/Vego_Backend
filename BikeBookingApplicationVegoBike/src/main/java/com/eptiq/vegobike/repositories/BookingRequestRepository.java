@@ -87,6 +87,9 @@ public interface BookingRequestRepository extends JpaRepository<BookingRequest, 
 
     Optional<BookingRequest> findByMerchantTransactionId(String merchantTransactionId);
 
+    boolean existsByCustomerIdAndCouponId(Integer customerId, Integer couponId);
+
+
 
 
 

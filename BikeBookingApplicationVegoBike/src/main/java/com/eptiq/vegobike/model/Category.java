@@ -96,7 +96,7 @@ public class Category implements Serializable {
 	private Timestamp updatedAt;
 
 	@ManyToOne
-	@JoinColumn(name="vehicle_type_id", nullable=false)
+	@JoinColumn(name="vehicle_type_id", nullable=true)
 	private VehicleType vehicleType;
 
 

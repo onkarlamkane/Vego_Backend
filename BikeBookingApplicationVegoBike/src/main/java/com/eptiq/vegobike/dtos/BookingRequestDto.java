@@ -10,8 +10,6 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookingRequestDto {
-    //    private int id;
-//    private String bookingId;
     private Integer customerId;
     private int vehicleId;
     private Date startDate;
@@ -23,14 +21,9 @@ public class BookingRequestDto {
     private float finalAmount;
     private float gst;
     private float totalHours;
-    //    private int bookingStatus;
-//    private String paymentStatus;
     private String addressType;
     private String address;
-//    private Timestamp createdAt;
-//    private Timestamp updatedAt;
 
-    // Additional fields that match BookingRequest entity
     private float additionalHours;
     private float couponAmount;
     private String couponCode;
@@ -42,12 +35,12 @@ public class BookingRequestDto {
     private double km;
     private Timestamp lateEndDate;
     private int lateFeeCharges;
-    // private String merchantTransactionId;
+
     private int paymentType;
     private int pickupLocationId;
     private Date startDate1;
     private float totalCharges;
-    //  private String transactionId;
+
 
     // UI display fields
     private String statusName; // "Confirmed", "Accepted", etc.

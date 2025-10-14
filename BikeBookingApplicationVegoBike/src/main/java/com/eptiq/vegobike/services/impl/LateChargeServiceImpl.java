@@ -9,12 +9,7 @@ import com.eptiq.vegobike.model.LateCharge;
 import com.eptiq.vegobike.repositories.LateChargeRepository;
 import com.eptiq.vegobike.services.LateChargeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.stream.Collectors;

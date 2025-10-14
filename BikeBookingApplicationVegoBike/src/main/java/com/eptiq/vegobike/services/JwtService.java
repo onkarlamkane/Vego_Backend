@@ -1,19 +1,3 @@
-//package com.eptiq.vegobike.services;
-//
-//import org.springframework.security.core.userdetails.UserDetails;
-//
-//public interface JwtService {
-//    String generateToken(UserDetails userDetails);
-//
-//    String extractUsername(String token);
-//
-//    boolean isTokenValid(String token, UserDetails userDetails);
-//
-//    String extractPhoneNumber(String token);
-//}
-//
-
-
 package com.eptiq.vegobike.services;
 
 import com.eptiq.vegobike.model.User;
