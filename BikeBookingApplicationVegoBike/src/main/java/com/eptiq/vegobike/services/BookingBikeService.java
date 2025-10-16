@@ -41,6 +41,9 @@ public interface BookingBikeService {
 
     List<AvailableBikeRow> getAvailableBikesForExchangeCategory(int bookingId);
 
+    List<BookingBikeResponse> searchBookingBikes(String searchText);
+
+
 
 
 }

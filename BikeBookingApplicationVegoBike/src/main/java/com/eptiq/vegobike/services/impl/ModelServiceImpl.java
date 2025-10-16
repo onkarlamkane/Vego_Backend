@@ -35,6 +35,14 @@ public class ModelServiceImpl implements ModelService {
 
     @Override
     public ModelResponse create(ModelCreateRequest request, MultipartFile image) {
+
+        boolean exists = modelRepository.existsByBrandIdAndModelNameIgnoreCase(
+                request.getBrandId(), request.getModelName().trim()
+        );
+        if (exists) {
+            throw new IllegalArgumentException("This model already exists for the brand");
+        }
+
         Brand brand = brandRepository.findById(request.getBrandId())
                 .orElseThrow(() -> new EntityNotFoundException("Brand not found with ID: " + request.getBrandId()));
 

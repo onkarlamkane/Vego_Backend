@@ -8,14 +8,20 @@ import com.eptiq.vegobike.model.Bike;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface BikeMapper {
 
+
+
     // Map Bike entity to BikeResponseDTO with images provided separately
-    static BikeResponseDTO toDTO(Bike bike, List<String> images) {
+    static BikeResponseDTO toDTO(Bike bike, String brandName,
+                                 String categoryName,
+                                 String modelName,
+                                 String status, List<String> images) {
         return BikeResponseDTO.builder()
                 .id(bike.getId())
                 .name(bike.getName())
@@ -23,8 +29,11 @@ public interface BikeMapper {
                 .chassisNumber(bike.getChassisNumber())
                 .engineNumber(bike.getEngineNumber())
                 .brandId(bike.getBrandId())
+                .brandName(brandName)
                 .categoryId(bike.getCategoryId())
+                .categoryName(categoryName)
                 .modelId(bike.getModelId())
+                .modelName(modelName)
                 .registrationYearId(bike.getRegistrationYearId())
                 .storeId(bike.getStoreId())
                 .price(bike.getPrice())
@@ -35,6 +44,8 @@ public interface BikeMapper {
                 .insuranceImageUrl(bike.getInsuranceImage())
                 .documentImageUrl(bike.getDocumentImage())
                 .bikeImages(images)
+                .isActive(bike.getIsActive() == 1)
+                .status(status)
                 .build();
     }
 
@@ -60,4 +71,16 @@ public interface BikeMapper {
     @Mapping(source = "insuranceImage", target = "insuranceImage")
     @Mapping(source = "pucImage", target = "pucImage")
     BikeDocumentsDTO toBikeDocumentsDto(Bike bike);
+
+    // Custom mapping helper: int → boolean
+    @Named("intToBoolean")
+    default boolean intToBoolean(int value) {
+        return value == 1;
+    }
+
+    // Custom mapping helper: boolean → int (if you need reverse mapping)
+    @Named("booleanToInt")
+    default int booleanToInt(boolean value) {
+        return value ? 1 : 0;
+    }
 }

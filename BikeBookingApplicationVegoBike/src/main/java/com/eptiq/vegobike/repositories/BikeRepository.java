@@ -2,6 +2,7 @@ package com.eptiq.vegobike.repositories;
 
 import com.eptiq.vegobike.dtos.AvailableBikeDto;
 import com.eptiq.vegobike.dtos.AvailableBikeRow;
+import com.eptiq.vegobike.model.Bike;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
@@ -77,5 +78,18 @@ public interface BikeRepository extends JpaRepository<com.eptiq.vegobike.model.B
             @Param("selectedEndDate") Date selectedEndDate,
             Pageable pageable
     );
+
+
+    Page<Bike> findAll(Pageable pageable);
+
+    @Query("""
+SELECT b FROM Bike b
+WHERE 
+    LOWER(b.name) LIKE LOWER(CONCAT('%', :searchText, '%')) OR
+    LOWER(b.registrationNumber) LIKE LOWER(CONCAT('%', :searchText, '%'))
+""")
+    List<Bike> searchBikesByText(@Param("searchText") String searchText);
+
+
 
 }

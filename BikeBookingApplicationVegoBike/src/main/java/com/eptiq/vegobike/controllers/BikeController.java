@@ -7,7 +7,9 @@ import com.eptiq.vegobike.dtos.BikeResponseDTO;
 import com.eptiq.vegobike.services.BikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -47,9 +49,16 @@ public class BikeController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<BikeResponseDTO>> getAllBikes() {
-        return ResponseEntity.ok(bikeService.getAllBikes());
+    public ResponseEntity<Page<BikeResponseDTO>> getAllBikes(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        // Sorting by createdAt descending
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")); // Or "updatedAt"
+        return ResponseEntity.ok(bikeService.getAllBikes(pageable));
     }
+
+
 
     @GetMapping("/{id}")
     public ResponseEntity<BikeResponseDTO> getBikeById(@PathVariable int id) {
@@ -83,5 +92,12 @@ public class BikeController {
         BikeDocumentsDTO documents = bikeService.getBikeDocuments(id);
         return ResponseEntity.ok(documents);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<BikeResponseDTO>> searchBikes(@RequestParam(required = false) String query) {
+        List<BikeResponseDTO> bikes = bikeService.searchBikes(query);
+        return ResponseEntity.ok(bikes);
+    }
+
 
 }

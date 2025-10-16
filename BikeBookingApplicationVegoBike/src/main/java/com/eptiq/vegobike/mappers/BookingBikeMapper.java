@@ -55,6 +55,7 @@ public interface BookingBikeMapper {
     @Mapping(target = "isPuc", source = "isPuc", qualifiedByName = "intToBoolean")
     @Mapping(target = "isInsurance", source = "isInsurance", qualifiedByName = "intToBoolean")
     @Mapping(target = "isDocuments", source = "isDocuments", qualifiedByName = "intToBoolean")
+    @Mapping(target = "isActive", source = "isActive", qualifiedByName = "intToBoolean")
     BikeResponseDTO toBikeResponseDTO(Bike bike);
 
     // DTO to entity conversion for BookingRequest
@@ -80,9 +81,9 @@ public interface BookingBikeMapper {
             case 2: return "Accepted";
             case 3: return "Start Trip";
             case 4: return "End Trip";
-            case 6: return "Completed";
-            case 7: return "Document Upload";
-            case 8: return "Cancelled";
+            case 5: return "Completed";           // Updated id for Completed
+            case 6: return "Document Upload";     // Updated id for Document Upload
+            case 7: return "Cancelled";           // Updated id for Cancelled
             default: return "Unknown";
         }
     }

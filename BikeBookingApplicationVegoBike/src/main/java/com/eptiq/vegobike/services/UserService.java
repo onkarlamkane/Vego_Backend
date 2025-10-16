@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -182,5 +183,7 @@ public interface UserService extends UserDetailsService {
     Long getUserIdFromToken(String token);
 
     User adminRegisterUser(SimpleUserDto dto);
+
+    List<UserProfileDTO> searchUsers(String searchText);
 
 }

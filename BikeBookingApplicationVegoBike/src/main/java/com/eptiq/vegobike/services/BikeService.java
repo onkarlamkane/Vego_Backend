@@ -14,11 +14,13 @@ import java.util.List;
 public interface BikeService {
     BikeResponseDTO createBike(BikeRequestDTO request) throws IOException;
     BikeResponseDTO updateBike(int id, BikeRequestDTO request) throws IOException;
-    List<BikeResponseDTO> getAllBikes();
+    Page<BikeResponseDTO> getAllBikes(Pageable pageable);
     BikeResponseDTO getBikeById(int id);
     Page<AvailableBikeDto> getAvailableBikes(Date startDate, Date endDate,
                                              String addressType, String search,
                                              Pageable pageable);
 
     BikeDocumentsDTO getBikeDocuments(int bikeId);
+    List<BikeResponseDTO> searchBikes(String searchText);
+
 }

@@ -26,7 +26,8 @@ public interface ModelRepository extends JpaRepository<Model, Integer> {
 
     List<Model> findByIsActive(Integer isActive);
 
-    // Or even simpler for boolean-like integer fields
-//    List<Model> findByIsActiveTrue(); // if isActive = 1
-//    List<Model> findByIsActiveFalse();
+    boolean existsByBrandIdAndModelNameIgnoreCase(Integer brandId, String modelName);
+
+
+
 }

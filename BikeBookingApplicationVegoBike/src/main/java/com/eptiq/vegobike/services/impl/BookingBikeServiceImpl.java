@@ -773,6 +773,11 @@ public class BookingBikeServiceImpl implements BookingBikeService {
             BookingRequest booking = bookingRequestRepository.findById(bookingId)
                     .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
 
+            if (booking.getBookingStatus() != 1) {
+                log.warn("❌ CANCEL_BOOKING - Cannot cancel booking {}: status is not Confirmed (status={})", bookingId, booking.getBookingStatus());
+                throw new IllegalStateException("Only bookings in Confirmed status can be cancelled.");
+            }
+
             // Update status to 7 (Cancelled)
             booking.setBookingStatus(7);
             booking.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
@@ -1041,6 +1046,18 @@ public class BookingBikeServiceImpl implements BookingBikeService {
                 .filter(row -> row.getCategoryId() == currentBike.getCategoryId())
                 .collect(Collectors.toList());
     }
+
+
+    @Override
+    public List<BookingBikeResponse> searchBookingBikes(String searchText) {
+        List<BookingRequest> bookings = bookingRequestRepository.searchBookingRequests(searchText);
+
+        return bookings.stream().map(booking -> {
+            Bike bike = bikeRepository.findById(booking.getVehicleId()).orElse(null);
+            return mapper.toResponse(booking, bike);
+        }).toList();
+    }
+
 
 
 

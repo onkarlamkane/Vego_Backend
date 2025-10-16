@@ -31,6 +31,7 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -871,6 +872,20 @@ public class UserServiceImpl implements UserService {
         user.setRoleId(3); // Role user
         user.setIsActive(1);
         return userRepository.save(user);
+    }
+
+
+    @Override
+    public List<UserProfileDTO> searchUsers(String searchText) {
+        List<User> users;
+        if (searchText == null || searchText.trim().isEmpty()) {
+            users = userRepository.findByRoleId(3);
+        } else {
+            users = userRepository.searchUsersByText(searchText.trim());
+        }
+        return users.stream()
+                .map(userMapper::toUserProfileDTO)
+                .collect(Collectors.toList());
     }
 
 }

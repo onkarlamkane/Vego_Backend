@@ -15,6 +15,9 @@ public class BikeResponseDTO {
     private int brandId;
     private int categoryId;
     private int modelId;
+    private String brandName;
+    private String categoryName;
+    private String modelName;
     private int registrationYearId;
     private int storeId;
     private int price;
@@ -25,4 +28,6 @@ public class BikeResponseDTO {
     private String insuranceImageUrl;
     private String documentImageUrl;
     private List<String> bikeImages;
+    private boolean isActive;
+    private String status;
 }

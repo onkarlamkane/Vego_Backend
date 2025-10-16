@@ -35,7 +35,7 @@ public class Model implements Serializable {
 	@JoinColumn(name = "brand_id", insertable = false, updatable = false)
 	private Brand brand;
 
-	@Lob
+
 	@Column(name = "model_name", columnDefinition = "TEXT", nullable = false)
 	private String modelName;
 

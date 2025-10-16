@@ -20,10 +20,18 @@ public interface BookingRequestMapper {
     @Mapping(target = "isPuc", source = "isPuc", qualifiedByName = "intToBoolean")
     @Mapping(target = "isInsurance", source = "isInsurance", qualifiedByName = "intToBoolean")
     @Mapping(target = "isDocuments", source = "isDocuments", qualifiedByName = "intToBoolean")
+    @Mapping(target = "isActive", source = "isActive", qualifiedByName = "intToBoolean")
     BikeResponseDTO toBikeResponseDTO(Bike bike);
 
+
+    // Custom converters for int ↔ boolean mapping
     @Named("intToBoolean")
-    static boolean intToBoolean(int value) {
-        return value != 0;
+    default boolean intToBoolean(int value) {
+        return value == 1;
+    }
+
+    @Named("booleanToInt")
+    default int booleanToInt(boolean value) {
+        return value ? 1 : 0;
     }
 }

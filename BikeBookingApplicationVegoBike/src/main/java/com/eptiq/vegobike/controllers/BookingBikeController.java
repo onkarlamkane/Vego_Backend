@@ -540,6 +540,11 @@ public class BookingBikeController {
         return ResponseEntity.ok(availableBikes);
     }
 
+    @GetMapping("/searchBookings")
+    public ResponseEntity<List<BookingBikeResponse>> searchBookings(@RequestParam String query) {
+        List<BookingBikeResponse> bookings = service.searchBookingBikes(query.trim());
+        return ResponseEntity.ok(bookings);
+    }
 
 
 

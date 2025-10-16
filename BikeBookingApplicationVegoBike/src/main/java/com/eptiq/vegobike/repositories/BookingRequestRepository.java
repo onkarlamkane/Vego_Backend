@@ -88,9 +88,16 @@ public interface BookingRequestRepository extends JpaRepository<BookingRequest, 
     Optional<BookingRequest> findByMerchantTransactionId(String merchantTransactionId);
 
     boolean existsByCustomerIdAndCouponId(Integer customerId, Integer couponId);
-
-
-
-
+    @Query("""
+SELECT br FROM BookingRequest br
+LEFT JOIN Bike b ON br.vehicleId = b.id
+LEFT JOIN User u ON br.customerId = u.id
+WHERE
+  LOWER(br.bookingId) LIKE LOWER(CONCAT('%', :search, '%')) OR
+  LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%')) OR
+  LOWER(b.registrationNumber) LIKE LOWER(CONCAT('%', :search, '%')) OR
+  LOWER(u.phoneNumber) LIKE LOWER(CONCAT('%', :search, '%'))
+""")
+    List<BookingRequest> searchBookingRequests(@Param("search") String search);
 
 }

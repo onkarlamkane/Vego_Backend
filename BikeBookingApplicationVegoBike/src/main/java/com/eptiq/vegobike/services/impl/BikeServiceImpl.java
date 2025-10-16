@@ -11,12 +11,16 @@ import com.eptiq.vegobike.repositories.BikeImageRepository;
 import com.eptiq.vegobike.repositories.BikeRepository;
 import com.eptiq.vegobike.repositories.PriceListRepository;
 import com.eptiq.vegobike.services.BikeService;
+import com.eptiq.vegobike.services.BrandService;
+import com.eptiq.vegobike.services.CategoryService;
+import com.eptiq.vegobike.services.ModelService;
 import com.eptiq.vegobike.utils.ImageUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,11 +39,17 @@ public class BikeServiceImpl implements BikeService {
     private final ImageUtils imageUtils;
     private final BikeMapper mapper;
     private final PriceListRepository priceListRepository;
+    private final BrandService brandService;
+    private final CategoryService categoryService;
+    private final ModelService modelService;
 
     @Override
     public BikeResponseDTO createBike(BikeRequestDTO request) throws IOException {
         Bike bike = mapper.toEntity(request);
+        bike.setIsActive(1);
         bike.setBikeStatus(BikeStatus.AVAILABLE);
+
+
 
         if (request.getPucImage() != null && !request.getPucImage().isEmpty()) {
             bike.setPucImage(imageUtils.storeImage(request.getPucImage(), ImageUtils.BIKES_FOLDER));
@@ -73,7 +83,13 @@ public class BikeServiceImpl implements BikeService {
             }
         }
 
-        return BikeMapper.toDTO(savedBike, getBikeImages(savedBike.getId()));
+        String brandName = brandService.getById(savedBike.getBrandId()).getBrandName();
+        String categoryName = categoryService.getCategoryById(savedBike.getCategoryId()).getCategoryName();
+        String modelName = modelService.getById(savedBike.getModelId()).getModelName();
+        String status = savedBike.getBikeStatus() != null ? savedBike.getBikeStatus().name() : "UNKNOWN";
+        List<String> images = getBikeImages(savedBike.getId());
+
+        return BikeMapper.toDTO(savedBike, brandName, categoryName, modelName, status, images);
     }
 
     @Override
@@ -119,22 +135,40 @@ public class BikeServiceImpl implements BikeService {
             }
         }
 
-        return BikeMapper.toDTO(updatedBike, getBikeImages(updatedBike.getId()));
+        String brandName = brandService.getById(updatedBike.getBrandId()).getBrandName();
+        String categoryName = categoryService.getCategoryById(updatedBike.getCategoryId()).getCategoryName();
+        String modelName = modelService.getById(updatedBike.getModelId()).getModelName();
+        String status = updatedBike.getBikeStatus() != null ? updatedBike.getBikeStatus().name() : "UNKNOWN";
+        List<String> images = getBikeImages(updatedBike.getId());
+
+        return BikeMapper.toDTO(updatedBike, brandName, categoryName, modelName, status, images);
+    }
+    @Override
+    public Page<BikeResponseDTO> getAllBikes(Pageable pageable) {
+        return bikeRepository.findAll(pageable)
+                .map(bike -> {
+                    String brandName = brandService.getById(bike.getBrandId()).getBrandName();
+                    String categoryName = categoryService.getCategoryById(bike.getCategoryId()).getCategoryName();
+                    String modelName = modelService.getById(bike.getModelId()).getModelName();
+                    String status = bike.getBikeStatus() != null ? bike.getBikeStatus().name() : "UNKNOWN";
+                    List<String> images = getBikeImages(bike.getId());
+                    return BikeMapper.toDTO(bike, brandName, categoryName, modelName, status, images);
+                });
     }
 
-    @Override
-    public List<BikeResponseDTO> getAllBikes() {
-        return bikeRepository.findAll()
-                .stream()
-                .map(bike -> BikeMapper.toDTO(bike, getBikeImages(bike.getId())))
-                .toList();
-    }
+
+
 
     @Override
     public BikeResponseDTO getBikeById(int id) {
         Bike bike = bikeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Bike not found with id " + id));
-        return BikeMapper.toDTO(bike, getBikeImages(id));
+        String brandName = brandService.getById(bike.getBrandId()).getBrandName();
+        String categoryName = categoryService.getCategoryById(bike.getCategoryId()).getCategoryName();
+        String modelName = modelService.getById(bike.getModelId()).getModelName();
+        String status = bike.getBikeStatus() != null ? bike.getBikeStatus().name() : "UNKNOWN";
+        List<String> images = getBikeImages(id);
+        return BikeMapper.toDTO(bike, brandName, categoryName, modelName, status, images);
     }
 
 
@@ -206,4 +240,25 @@ public class BikeServiceImpl implements BikeService {
         return mapper.toBikeDocumentsDto(bike);
 
     }
+
+    @Override
+    public List<BikeResponseDTO> searchBikes(String searchText) {
+        List<Bike> bikes;
+        if (searchText == null || searchText.trim().isEmpty()) {
+            bikes = bikeRepository.findAll();
+        } else {
+            bikes = bikeRepository.searchBikesByText(searchText.trim());
+        }
+        return bikes.stream()
+                .map(bike -> {
+                    String brandName = brandService.getById(bike.getBrandId()).getBrandName();
+                    String categoryName = categoryService.getCategoryById(bike.getCategoryId()).getCategoryName();
+                    String modelName = modelService.getById(bike.getModelId()).getModelName();
+                    String status = bike.getBikeStatus() != null ? bike.getBikeStatus().name() : "UNKNOWN";
+                    List<String> images = getBikeImages(bike.getId());
+                    return BikeMapper.toDTO(bike, brandName, categoryName, modelName, status, images);
+                })
+                .toList();
+    }
+
 }
