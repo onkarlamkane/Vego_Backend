@@ -230,7 +230,7 @@ public class BookingBikeServiceImpl implements BookingBikeService {
         // Coupon logic (unchanged)
         if (entity.getCouponCode() != null && !entity.getCouponCode().isEmpty()) {
             Float discountedPrice = offerService.applyOfferForUser(
-                    entity.getCustomerId() != null ? entity.getCustomerId().intValue() : null,entity.getVehicleId(),
+                    entity.getCustomerId() != null ? entity.getCustomerId().intValue() : null, entity.getVehicleId(),
                     entity.getCouponCode(),
                     entity.getFinalAmount()
             );
@@ -312,7 +312,6 @@ public class BookingBikeServiceImpl implements BookingBikeService {
 
         return response;
     }
-
 
 
     private void checkActiveBookings(int customerId) {
@@ -576,7 +575,7 @@ public class BookingBikeServiceImpl implements BookingBikeService {
             Bike bike = bikeRepository.findById(updatedBooking.getVehicleId()).orElse(null);
 
             // Map to response
-            return mapper.toResponse(updatedBooking , bike);
+            return mapper.toResponse(updatedBooking, bike);
 
         } catch (ResourceNotFoundException e) {
             log.error("❌ ACCEPT_BOOKING - Booking not found: {}", bookingId);
@@ -680,7 +679,7 @@ public class BookingBikeServiceImpl implements BookingBikeService {
     }
 
     @Override
-    public BookingBikeResponse endTrip(String bookingId, MultipartFile[] images, Double endTripKm , HttpServletRequest httpRequest) {
+    public BookingBikeResponse endTrip(String bookingId, MultipartFile[] images, Double endTripKm, HttpServletRequest httpRequest) {
         try {
             log.info("🏁 Processing trip end for booking: {}", bookingId);
 
@@ -874,7 +873,7 @@ public class BookingBikeServiceImpl implements BookingBikeService {
             Bike bike = bikeRepository.findById(updatedBooking.getVehicleId()).orElse(null);
 
 
-            return mapper.toResponse(updatedBooking , bike);
+            return mapper.toResponse(updatedBooking, bike);
 
         } catch (Exception e) {
             log.error("💥 CANCEL_BOOKING - Error: {}", e.getMessage(), e);
@@ -1041,7 +1040,7 @@ public class BookingBikeServiceImpl implements BookingBikeService {
         BookingRequest booking = bookingRequestRepository.findByMerchantTransactionId(razorpayOrderId)
                 .orElseThrow(() -> new RuntimeException("Booking not found for Razorpay order: " + razorpayOrderId));
 
-        if(verified) {
+        if (verified) {
             booking.setTransactionId(paymentId);
             booking.setPaymentStatus("PAID");
         } else {
@@ -1139,13 +1138,23 @@ public class BookingBikeServiceImpl implements BookingBikeService {
 
         return bookings.stream().map(booking -> {
             Bike bike = bikeRepository.findById(booking.getVehicleId()).orElse(null);
+            User user = userRepository.findById(booking.getCustomerId()).orElse(null);
+
+            BookingBikeResponse response = mapper.toResponse(booking, bike);
+            // Set customer name and phone number
+            if (user != null) {
+                response.setCustomerName(user.getName());
+                response.setCustomerNumber(user.getPhoneNumber());
+            }
+
+            if (response.getBikeDetails() != null) {
+                response.getBikeDetails().setRegistrationNumber(bike.getRegistrationNumber());
+            }
+
+
             return mapper.toResponse(booking, bike);
         }).toList();
     }
-
-
-
-
 
 
 }
