@@ -9,6 +9,7 @@ import com.eptiq.vegobike.mappers.BookingRequestMapper;
 import com.eptiq.vegobike.model.Bike;
 import com.eptiq.vegobike.model.BookingBike;
 import com.eptiq.vegobike.model.BookingRequest;
+import com.eptiq.vegobike.model.User;
 import com.eptiq.vegobike.repositories.*;
 import com.eptiq.vegobike.services.*;
 import com.eptiq.vegobike.utils.ImageUtils;
@@ -51,6 +52,7 @@ public class BookingBikeServiceImpl implements BookingBikeService {
     private final OfferService offerService;
     private final PriceListService priceListService;
     private final BookingBikeRepository bookingBikeRepository;
+    private final UserRepository userRepository;
 
 
 //    @Override
@@ -179,7 +181,7 @@ public class BookingBikeServiceImpl implements BookingBikeService {
         validateBookingRequest(request);
 
         BookingRequest entity = mapper.toBookingRequestEntity(request);
-        entity.setCustomerId(customerId.intValue());
+        entity.setCustomerId(customerId);
         entity.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         entity.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         entity.setBookingStatus(1);
@@ -228,8 +230,7 @@ public class BookingBikeServiceImpl implements BookingBikeService {
         // Coupon logic (unchanged)
         if (entity.getCouponCode() != null && !entity.getCouponCode().isEmpty()) {
             Float discountedPrice = offerService.applyOfferForUser(
-                    entity.getCustomerId(),
-                    entity.getVehicleId(),
+                    entity.getCustomerId() != null ? entity.getCustomerId().intValue() : null,entity.getVehicleId(),
                     entity.getCouponCode(),
                     entity.getFinalAmount()
             );
@@ -445,6 +446,18 @@ public class BookingBikeServiceImpl implements BookingBikeService {
     }
 
 
+//    @Override
+//    public Page<BookingBikeResponse> getAllBookingBikes(Pageable pageable) {
+//        log.debug("📋 Fetching bookings with pagination: {}", pageable);
+//
+//        Page<BookingRequest> bookingPage = bookingRequestRepository.findAll(pageable);
+//
+//        return bookingPage.map(booking -> {
+//            Bike bike = bikeRepository.findById(booking.getVehicleId()).orElse(null);
+//            return mapper.toResponse(booking, bike);
+//        });
+//    }
+
     @Override
     public Page<BookingBikeResponse> getAllBookingBikes(Pageable pageable) {
         log.debug("📋 Fetching bookings with pagination: {}", pageable);
@@ -453,7 +466,39 @@ public class BookingBikeServiceImpl implements BookingBikeService {
 
         return bookingPage.map(booking -> {
             Bike bike = bikeRepository.findById(booking.getVehicleId()).orElse(null);
-            return mapper.toResponse(booking, bike);
+            BookingBikeResponse response = mapper.toResponse(booking, bike);
+
+            // Fetch start/end trip images
+            List<String> startImages = bookingBikeRepository.findImagesByBookingAndType(booking.getId(), 1);
+            List<String> endImages = bookingBikeRepository.findImagesByBookingAndType(booking.getId(), 2);
+
+            if (startImages != null && !startImages.isEmpty()) {
+                startImages = startImages.stream()
+                        .map(imageUtils::getPublicUrlVersioned)
+                        .toList();
+            }
+
+            if (endImages != null && !endImages.isEmpty()) {
+                endImages = endImages.stream()
+                        .map(imageUtils::getPublicUrlVersioned)
+                        .toList();
+            }
+
+            response.setStartTripImages(startImages);
+            response.setEndTripImages(endImages);
+
+            // Fetch customer info and set
+            User user = userRepository.findById(booking.getCustomerId()).orElse(null);
+            if (user != null) {
+                response.setCustomerName(user.getName());
+                response.setCustomerNumber(user.getPhoneNumber());
+            }
+
+            // Set bike registration number
+            response.getBikeDetails().getRegistrationNumber();
+
+
+            return response;
         });
     }
 
@@ -475,11 +520,9 @@ public class BookingBikeServiceImpl implements BookingBikeService {
                     Bike bike = bikeRepository.findById(booking.getVehicleId()).orElse(null);
                     BookingBikeResponse response = mapper.toResponse(booking, bike);
 
-                    // Fetch start and end trip images from booking_bikes
                     List<String> startImages = bookingBikeRepository.findImagesByBookingAndType(booking.getId(), 1);
                     List<String> endImages = bookingBikeRepository.findImagesByBookingAndType(booking.getId(), 2);
 
-                    // Convert to public URLs (optional)
                     if (startImages != null && !startImages.isEmpty()) {
                         startImages = startImages.stream()
                                 .map(imageUtils::getPublicUrlVersioned)
@@ -494,11 +537,20 @@ public class BookingBikeServiceImpl implements BookingBikeService {
                     response.setStartTripImages(startImages);
                     response.setEndTripImages(endImages);
 
+                    User user = userRepository.findById(booking.getCustomerId()).orElse(null);
+                    if (user != null) {
+                        response.setCustomerName(user.getName());
+                        response.setCustomerNumber(user.getPhoneNumber());
+                    }
+
+
+                    response.getBikeDetails().getRegistrationNumber();
+
+
                     return response;
                 })
                 .orElseThrow(() -> new ResourceNotFoundException("BookingBike not found"));
     }
-
 
     @Override
     @Transactional

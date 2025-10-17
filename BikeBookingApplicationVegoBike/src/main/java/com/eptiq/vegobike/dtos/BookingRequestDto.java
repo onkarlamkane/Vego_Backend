@@ -10,7 +10,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookingRequestDto {
-    private Integer customerId;
+    private Long customerId;
     private int vehicleId;
     private Date startDate;
     private Date endDate;

@@ -17,7 +17,7 @@ public class BookingBikeResponse {
     private Integer id;
     private String bookingId;
     private Integer vehicleId;
-    private Integer customerId;
+    private Long customerId;
     private String customerName;
     private String customerNumber;
     private Date startDate;

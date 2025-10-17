@@ -61,7 +61,7 @@ public class BookingRequest implements Serializable {
     private Timestamp createdAt;
 
     @Column(name = "customer_id")
-    private Integer customerId;
+    private Long customerId;
 
     @Column(name = "delivery_charges")
     private Float deliveryCharges;
@@ -254,11 +254,11 @@ public class BookingRequest implements Serializable {
         this.createdAt = createdAt;
     }
 
-    public Integer getCustomerId() {
+    public Long getCustomerId() {
         return this.customerId;
     }
 
-    public void setCustomerId(int customerId) {
+    public void setCustomerId(Long customerId) {
         this.customerId = customerId;
     }
 

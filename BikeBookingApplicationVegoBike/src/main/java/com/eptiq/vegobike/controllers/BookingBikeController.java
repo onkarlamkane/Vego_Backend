@@ -498,7 +498,7 @@ public class BookingBikeController {
         } catch (UserNotFoundException ex) {
             user = userService.adminRegisterUser(request.getCustomer());
         }
-        request.getBooking().setCustomerId(user.getId().intValue());
+        request.getBooking().setCustomerId(user.getId());
         BookingBikeResponse bookingResponse = service.createBookingByAdmin(request.getBooking());
         return ResponseEntity.ok(bookingResponse);
     }

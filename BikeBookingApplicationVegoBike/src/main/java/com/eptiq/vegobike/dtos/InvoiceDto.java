@@ -14,7 +14,7 @@ public class InvoiceDto {
     private Integer id;
     private String invoiceNumber;
     private Integer bookingId;
-    private Integer customerId;
+    private Long customerId;
     private BigDecimal amount;
     private BigDecimal taxAmount;
     private BigDecimal totalAmount;
