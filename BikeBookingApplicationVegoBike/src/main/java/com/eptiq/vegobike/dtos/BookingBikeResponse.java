@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Builder
@@ -60,4 +61,7 @@ public class BookingBikeResponse {
     private String message;
     private Double startTripKm;
     private Double endTripKm;
+    private List<String> startTripImages;
+    private List<String> endTripImages;
+
 }

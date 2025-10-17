@@ -50,6 +50,7 @@ public class BookingBikeServiceImpl implements BookingBikeService {
     private final RazorpayService razorpayService;
     private final OfferService offerService;
     private final PriceListService priceListService;
+    private final BookingBikeRepository bookingBikeRepository;
 
 
 //    @Override
@@ -456,16 +457,48 @@ public class BookingBikeServiceImpl implements BookingBikeService {
         });
     }
 
+//    @Override
+//    public BookingBikeResponse getBookingBikeById(int id) {
+//        return bookingRequestRepository.findById(id)
+//                .map(booking -> {
+//                    Bike bike = bikeRepository.findById(booking.getVehicleId()).orElse(null);
+//                    return mapper.toResponse(booking, bike);
+//                })
+//
+//                .orElseThrow(() -> new ResourceNotFoundException("BookingBike not found"));
+//    }
+
     @Override
     public BookingBikeResponse getBookingBikeById(int id) {
         return bookingRequestRepository.findById(id)
                 .map(booking -> {
                     Bike bike = bikeRepository.findById(booking.getVehicleId()).orElse(null);
-                    return mapper.toResponse(booking, bike);
-                })
+                    BookingBikeResponse response = mapper.toResponse(booking, bike);
 
+                    // Fetch start and end trip images from booking_bikes
+                    List<String> startImages = bookingBikeRepository.findImagesByBookingAndType(booking.getId(), 1);
+                    List<String> endImages = bookingBikeRepository.findImagesByBookingAndType(booking.getId(), 2);
+
+                    // Convert to public URLs (optional)
+                    if (startImages != null && !startImages.isEmpty()) {
+                        startImages = startImages.stream()
+                                .map(imageUtils::getPublicUrlVersioned)
+                                .toList();
+                    }
+                    if (endImages != null && !endImages.isEmpty()) {
+                        endImages = endImages.stream()
+                                .map(imageUtils::getPublicUrlVersioned)
+                                .toList();
+                    }
+
+                    response.setStartTripImages(startImages);
+                    response.setEndTripImages(endImages);
+
+                    return response;
+                })
                 .orElseThrow(() -> new ResourceNotFoundException("BookingBike not found"));
     }
+
 
     @Override
     @Transactional
