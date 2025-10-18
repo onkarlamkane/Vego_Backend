@@ -1,6 +1,8 @@
 package com.eptiq.vegobike.controllers;
 
 import com.eptiq.vegobike.dtos.*;
+import com.eptiq.vegobike.mappers.UserMapper;
+import com.eptiq.vegobike.mappers.UserMapperImpl;
 import com.eptiq.vegobike.model.User;
 import com.eptiq.vegobike.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,10 +33,12 @@ public class AuthenticationController {
 
     private final UserService authService;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
-    public AuthenticationController(UserService authService, PasswordEncoder passwordEncoder) {
+    public AuthenticationController(UserService authService, PasswordEncoder passwordEncoder , UserMapper userMapper) {
         this.authService = authService;
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
     }
 
     // Health check endpoint
@@ -763,5 +767,11 @@ public class AuthenticationController {
     @GetMapping("/search")
     public List<UserProfileDTO> searchUsers(@RequestParam(required = false) String searchText) {
         return authService.searchUsers(searchText);
+    }
+
+    @GetMapping("/by-phone/{phoneNumber}")
+    public ResponseEntity<?> getUserByPhone(@PathVariable String phoneNumber) {
+        User user = authService.getUserByPhoneNumber(phoneNumber);
+        return ResponseEntity.ok(userMapper.toUserProfileDTO(user));
     }
 }

@@ -13,6 +13,7 @@ public class AvailableBikeDto {
     private String name;
     private int categoryId;
     private Integer modelId;
+    private Long storeId;
     private String registrationNumber;
     private String storeName;
     private String mainImageUrl;

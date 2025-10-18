@@ -3,6 +3,7 @@ package com.eptiq.vegobike.controllers;
 import com.eptiq.vegobike.dtos.*;
 import com.eptiq.vegobike.exceptions.*;
 import com.eptiq.vegobike.model.User;
+import com.eptiq.vegobike.services.BikeService;
 import com.eptiq.vegobike.services.BookingBikeService;
 import com.eptiq.vegobike.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,6 +32,7 @@ public class BookingBikeController {
 
     private final BookingBikeService service;
     private final UserService userService;
+    private final BikeService bikeService;
 
 
     @PostMapping("/create")
@@ -499,9 +501,13 @@ public class BookingBikeController {
             user = userService.adminRegisterUser(request.getCustomer());
         }
         request.getBooking().setCustomerId(user.getId());
+
+        // [NEW] Add cityId, storeId, startDate, endDate logic as per user flow if needed
+
         BookingBikeResponse bookingResponse = service.createBookingByAdmin(request.getBooking());
         return ResponseEntity.ok(bookingResponse);
     }
+
 
 
     @PostMapping("/{bookingId}/exchange-bike")
@@ -545,5 +551,28 @@ public class BookingBikeController {
         List<BookingBikeResponse> bookings = service.searchBookingBikes(query.trim());
         return ResponseEntity.ok(bookings);
     }
+
+
+    @PostMapping("/admin/available-bikes")
+    public ResponseEntity<List<AvailableBikeDto>> getAvailableBikesForAdmin(
+            @RequestBody AvailableBikeSearchRequest req,
+            Pageable pageable
+    ) {
+        Page<AvailableBikeDto> bikes = bikeService.getAvailableBikes(
+                req.getStartDate(),
+                req.getEndDate(),
+                null, // addressType, not used here
+                null, // search, not used here
+                pageable
+        );
+
+        // Filter by storeId
+        List<AvailableBikeDto> filtered = bikes.getContent().stream()
+                .filter(b -> req.getStoreId() == null || req.getStoreId().equals(b.getStoreId()))
+                .toList();
+
+        return ResponseEntity.ok(filtered);
+    }
+
 
 }

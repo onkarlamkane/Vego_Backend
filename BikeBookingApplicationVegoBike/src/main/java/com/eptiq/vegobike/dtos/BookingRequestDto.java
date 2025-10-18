@@ -12,6 +12,7 @@ import java.util.Date;
 public class BookingRequestDto {
     private Long customerId;
     private int vehicleId;
+    private Long storeId;
     private Date startDate;
     private Date endDate;
     private float charges;

@@ -186,7 +186,7 @@ public class BikeServiceImpl implements BikeService {
     public Page<AvailableBikeDto> getAvailableBikes(Date startDate, Date endDate,
                                                     String addressType, String search,
                                                     Pageable pageable) {
-        List<Integer> activeStatuses = List.of(1, 2, 3, 4);
+        List<Integer> activeStatuses = List.of(1, 2, 7);
 
         Page<AvailableBikeRow> slice = bikeRepository.findAvailableBikeRows(
                 search, activeStatuses, startDate, endDate, pageable);

@@ -53,6 +53,7 @@ public class BookingBikeServiceImpl implements BookingBikeService {
     private final PriceListService priceListService;
     private final BookingBikeRepository bookingBikeRepository;
     private final UserRepository userRepository;
+    private final BikeService bikeService;
 
 
 //    @Override
@@ -1049,34 +1050,76 @@ public class BookingBikeServiceImpl implements BookingBikeService {
         bookingRequestRepository.save(booking);
     }
 
+//    @Override
+//    public BookingBikeResponse createBookingByAdmin(BookingRequestDto bookingRequestDto) {
+//        // Validate bookingRequestDto as needed
+//
+//        // Set booking meta for admin booking (could log admin as 'createdBy' etc)
+//        BookingRequest entity = mapper.toBookingRequestEntity(bookingRequestDto);
+//        entity.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+//        entity.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+//        entity.setBookingStatus(1);
+//
+//        // Save booking
+//        BookingRequest savedBooking = bookingRequestRepository.save(entity);
+//
+//        // Generate Booking ID if necessary
+//        if (savedBooking.getBookingId() == null || savedBooking.getBookingId().isEmpty()) {
+//            String generatedBookingId = String.format("VEGO%03d", savedBooking.getId());
+//            savedBooking.setBookingId(generatedBookingId);
+//            savedBooking = bookingRequestRepository.save(savedBooking);
+//        }
+//
+//        // Get full bike info for response if required
+//        Bike bike = bikeRepository.findById(savedBooking.getVehicleId()).orElse(null);
+//
+//        // Build and return response
+//        BookingBikeResponse response = mapper.toResponse(savedBooking, bike);
+//        response.setMessage("Booking created by admin successfully.");
+//        return response;
+//    }
+
     @Override
     public BookingBikeResponse createBookingByAdmin(BookingRequestDto bookingRequestDto) {
-        // Validate bookingRequestDto as needed
+        // Extract details
+        int vehicleId = bookingRequestDto.getVehicleId();
+        Long storeId = bookingRequestDto.getStoreId();
+        Date startDate = bookingRequestDto.getStartDate();
+        Date endDate = bookingRequestDto.getEndDate();
 
-        // Set booking meta for admin booking (could log admin as 'createdBy' etc)
+        // Check bike availability for given dates and store, using existing logic
+        Pageable pageable = PageRequest.of(0, 10); // Arbitrary size
+        Page<AvailableBikeDto> availableBikes = bikeService.getAvailableBikes(startDate, endDate, null, null, pageable);
+
+        boolean available = availableBikes.getContent().stream()
+                .anyMatch(b -> b.getId() == vehicleId && (storeId == null || storeId.equals(b.getStoreId())));
+
+        if (!available) {
+            throw new RuntimeException("Bike not available at this store for selected dates.");
+        }
+
+        // Proceed to create booking (COD only)
         BookingRequest entity = mapper.toBookingRequestEntity(bookingRequestDto);
         entity.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         entity.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         entity.setBookingStatus(1);
+        entity.setPaymentType(1);  // COD
+        entity.setPaymentStatus("PENDING");
 
-        // Save booking
         BookingRequest savedBooking = bookingRequestRepository.save(entity);
 
-        // Generate Booking ID if necessary
         if (savedBooking.getBookingId() == null || savedBooking.getBookingId().isEmpty()) {
             String generatedBookingId = String.format("VEGO%03d", savedBooking.getId());
             savedBooking.setBookingId(generatedBookingId);
             savedBooking = bookingRequestRepository.save(savedBooking);
         }
 
-        // Get full bike info for response if required
         Bike bike = bikeRepository.findById(savedBooking.getVehicleId()).orElse(null);
-
-        // Build and return response
         BookingBikeResponse response = mapper.toResponse(savedBooking, bike);
         response.setMessage("Booking created by admin successfully.");
         return response;
     }
+
 
 
     @Override
