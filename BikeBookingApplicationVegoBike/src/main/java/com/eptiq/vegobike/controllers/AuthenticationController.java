@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -757,5 +758,10 @@ public class AuthenticationController {
                     "timestamp", LocalDateTime.now()
             ));
         }
+    }
+
+    @GetMapping("/search")
+    public List<UserProfileDTO> searchUsers(@RequestParam(required = false) String searchText) {
+        return authService.searchUsers(searchText);
     }
 }

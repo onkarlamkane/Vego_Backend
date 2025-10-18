@@ -1141,18 +1141,17 @@ public class BookingBikeServiceImpl implements BookingBikeService {
             User user = userRepository.findById(booking.getCustomerId()).orElse(null);
 
             BookingBikeResponse response = mapper.toResponse(booking, bike);
-            // Set customer name and phone number
+
             if (user != null) {
                 response.setCustomerName(user.getName());
                 response.setCustomerNumber(user.getPhoneNumber());
             }
 
-            if (response.getBikeDetails() != null) {
+            if (bike != null && response.getBikeDetails() != null) {
                 response.getBikeDetails().setRegistrationNumber(bike.getRegistrationNumber());
             }
 
-
-            return mapper.toResponse(booking, bike);
+            return response;  // return the same modified object
         }).toList();
     }
 

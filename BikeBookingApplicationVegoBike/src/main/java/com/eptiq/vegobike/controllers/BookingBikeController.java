@@ -546,7 +546,4 @@ public class BookingBikeController {
         return ResponseEntity.ok(bookings);
     }
 
-
-
-
 }
