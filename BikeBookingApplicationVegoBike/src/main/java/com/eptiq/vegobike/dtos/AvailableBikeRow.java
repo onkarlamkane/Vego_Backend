@@ -8,4 +8,5 @@ public interface AvailableBikeRow {
     String getRegistrationNumber();
     String getStoreName();
     String getMainImageUrl();
+    Long getStoreId();
 }
