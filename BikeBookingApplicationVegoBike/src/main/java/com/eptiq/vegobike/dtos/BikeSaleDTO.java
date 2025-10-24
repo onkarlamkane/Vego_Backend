@@ -1,6 +1,11 @@
 package com.eptiq.vegobike.dtos;
 
+import com.eptiq.vegobike.enums.BikeCondition;
+import com.eptiq.vegobike.enums.ListingStatus;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Data
@@ -10,7 +15,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 public class BikeSaleDTO {
     private Long id;
-    private String nameOfPerson;
+    private String name;
     private String email;
     private String contactNumber;
     private String alternateContactNumber;
@@ -28,7 +33,9 @@ public class BikeSaleDTO {
     private Integer numberOfOwner;
     private Integer kmsDriven;
     private Double price;
-    private String bikeCondition;
+
+    private BikeCondition bikeCondition;
+
     private String bikeDescription;
     private Long storeId;
     private String pucImage;
@@ -41,13 +48,24 @@ public class BikeSaleDTO {
     private String supervisorName;
     private String inspectionBikeCondition;
     private String additionalNotes;
-    private String status;
-    private String isRepairRequired;
-    private Double sellingPrice;
-    private Double sellingClosingPrice;
+    private ListingStatus listingStatus;
+    //private String status;
+    private Boolean isRepairRequired;
+
+    private BigDecimal sellingPrice;
+    private BigDecimal sellingClosingPrice;
     private Timestamp createdAt;
     private Timestamp updatedAt;
     private String addedBy;
     private Long sellId;
     private Timestamp deletedAt;
+
+    // Images
+    private MultipartFile front_image;
+    private MultipartFile back_image;
+    private MultipartFile left_image;
+    private MultipartFile right_image;
+    private MultipartFile puc_image;
+    private MultipartFile insurance_image;
+    private MultipartFile document_image;
 }

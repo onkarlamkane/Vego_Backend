@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
@@ -16,4 +17,9 @@ public class BikeSellImageDTO {
     private String backImages;
     private String leftImages;
     private String rightImages;
+
+    private MultipartFile frontImageFile;
+    private MultipartFile backImageFile;
+    private MultipartFile leftImageFile;
+    private MultipartFile rightImageFile;
 }
