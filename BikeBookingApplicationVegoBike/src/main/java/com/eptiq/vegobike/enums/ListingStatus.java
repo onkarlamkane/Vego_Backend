@@ -5,6 +5,7 @@ public enum ListingStatus {
     INSPECTION,
     CALL_TO_OWNER,
     LISTED,
+    Available,
     REJECTED,
     SOLD,
     PENDING;
