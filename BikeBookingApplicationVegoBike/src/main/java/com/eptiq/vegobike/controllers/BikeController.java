@@ -79,10 +79,12 @@ public class BikeController {
 
             @RequestParam(value = "search", required = false) String search,
 
+            @RequestParam(value = "storeId", required = false) Long storeId,  // <-- Long
+
             @PageableDefault(size = 10, page = 0) Pageable pageable) {
 
         Page<AvailableBikeDto> bikes = bikeService.getAvailableBikes(
-                startDate, endDate, addressType, search, pageable);
+                startDate, endDate, addressType, search,  storeId, pageable);
 
         return ResponseEntity.ok(bikes);
     }

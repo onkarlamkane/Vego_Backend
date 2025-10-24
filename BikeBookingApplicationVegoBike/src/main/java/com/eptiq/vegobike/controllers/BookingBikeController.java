@@ -562,7 +562,8 @@ public class BookingBikeController {
                 req.getStartDate(),
                 req.getEndDate(),
                 null, // addressType, not used here
-                null, // search, not used here
+                null,
+                req.getStoreId(),// search, not used here
                 pageable
         );
 

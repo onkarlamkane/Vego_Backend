@@ -17,7 +17,7 @@ public interface BikeService {
     Page<BikeResponseDTO> getAllBikes(Pageable pageable);
     BikeResponseDTO getBikeById(int id);
     Page<AvailableBikeDto> getAvailableBikes(Date startDate, Date endDate,
-                                             String addressType, String search,
+                                             String addressType, String search, Long storeId,
                                              Pageable pageable);
 
     BikeDocumentsDTO getBikeDocuments(int bikeId);

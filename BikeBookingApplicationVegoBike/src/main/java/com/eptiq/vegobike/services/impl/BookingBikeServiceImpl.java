@@ -1089,7 +1089,7 @@ public class BookingBikeServiceImpl implements BookingBikeService {
 
         // Check bike availability for given dates and store, using existing logic
         Pageable pageable = PageRequest.of(0, 10); // Arbitrary size
-        Page<AvailableBikeDto> availableBikes = bikeService.getAvailableBikes(startDate, endDate, null, null, pageable);
+        Page<AvailableBikeDto> availableBikes = bikeService.getAvailableBikes(startDate, endDate, null, null, storeId, pageable);
 
         boolean available = availableBikes.getContent().stream()
                 .anyMatch(b -> b.getId() == vehicleId && (storeId == null || storeId.equals(b.getStoreId())));
@@ -1158,6 +1158,9 @@ public class BookingBikeServiceImpl implements BookingBikeService {
         Bike currentBike = bikeRepository.findById(booking.getVehicleId())
                 .orElseThrow(() -> new ResourceNotFoundException("Bike not found"));
 
+        Long storeId = Long.valueOf(currentBike.getStoreId());
+
+
         // Active statuses that should block availability
         List<Integer> activeStatuses = Arrays.asList(1, 2, 3, 4);
 
@@ -1166,6 +1169,7 @@ public class BookingBikeServiceImpl implements BookingBikeService {
                 activeStatuses,
                 booking.getStartDate(),
                 booking.getEndDate(),
+                storeId,
                 Pageable.unpaged()
         );
 

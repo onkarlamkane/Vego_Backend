@@ -76,6 +76,7 @@ public interface BikeRepository extends JpaRepository<com.eptiq.vegobike.model.B
             @Param("activeStatuses") List<Integer> activeStatuses,
             @Param("selectedStartDate") Date selectedStartDate,
             @Param("selectedEndDate") Date selectedEndDate,
+            @Param("storeId") Long storeId,
             Pageable pageable
     );
 

@@ -184,12 +184,12 @@ public class BikeServiceImpl implements BikeService {
     @Override
     @Transactional
     public Page<AvailableBikeDto> getAvailableBikes(Date startDate, Date endDate,
-                                                    String addressType, String search,
+                                                    String addressType, String search, Long storeId,
                                                     Pageable pageable) {
         List<Integer> activeStatuses = List.of(1, 2, 7);
 
         Page<AvailableBikeRow> slice = bikeRepository.findAvailableBikeRows(
-                search, activeStatuses, startDate, endDate, pageable);
+                search, activeStatuses, startDate, endDate, storeId, pageable);
 
         if (slice.isEmpty()) {
             return new PageImpl<>(List.of(), pageable, 0);
